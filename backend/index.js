@@ -36,10 +36,16 @@ const upload = multer({ storage });
 
 /* MongoDB Connection */
 const PORT = process.env.PORT || 6001;
+const MONGO_URI = process.env.MONGO_URI;
 mongoose
-    .connect(process.env.MONGO_URI, {
-})
-    .then(() => {
+  .connect(MONGO_URI, {
+    serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of default 30s
+  })
+  .then(() => {
+    console.log("Connected to MongoDB");
     app.listen(PORT, () => console.log(`Server running on port: ${PORT}`));
-    })
-    .catch((error) => console.log(`${error} did not connect`));
+  })
+  .catch((error) => {
+    console.error("MongoDB connection failed:", error);
+    process.exit(1); // Exit process if the connection fails
+  });

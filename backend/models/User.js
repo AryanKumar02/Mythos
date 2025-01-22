@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema(
       validate: {
         validator: validator.isEmail, // Validate email format
         message: 'Please provide a valid email address',
-      }, // Basic email validation regex
+      },
     },
     password: {
       type: String,

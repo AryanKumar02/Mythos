@@ -3,8 +3,8 @@ import jwt from 'jsonwebtoken';
 
 // Generate a JWT token
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || 'your_jwt_secret_key', {
-    expiresIn: '1h',
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: '10h',
   });
 };
 
@@ -65,7 +65,7 @@ export const loginUser = async (req, res) => {
       id: user._id,
       username: user.username,
       email: user.email,
-      //token: generateToken(user._id),
+      token: generateToken(user._id),
     });
   } catch (error) {
     res.status(500).json({ error: 'Failed to log in', details: error.message });

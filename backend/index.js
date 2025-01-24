@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 import connectDB from './config/db.js';
 import userRoutes from './routes/userRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
+import questRoutes from './routes/questRoutes.js';
 
 /* Configurations */
 const __filename = fileURLToPath(import.meta.url);
@@ -38,13 +39,10 @@ app.use(
 app.use(cors());
 app.use('/api/users', userRoutes);
 app.use('/api/tasks', taskRoutes);
+app.use('/api/quests', questRoutes);
+
 
 app.use('/assets', express.static(path.resolve(__dirname, 'public/assets')));
-
-/* Test Route */
-app.get('/', (req, res) => {
-  res.send('API is running...');
-});
 
 /* MongoDB Connection */
 (async () => {

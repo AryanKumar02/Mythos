@@ -6,9 +6,11 @@ import morgan from 'morgan';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import connectDB from './config/db.js';
+import { swaggerDocs, swaggerUi } from './config/swagger.js';
 import userRoutes from './routes/userRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
 import questRoutes from './routes/questRoutes.js';
+
 
 /* Configurations */
 const __filename = fileURLToPath(import.meta.url);
@@ -23,7 +25,7 @@ app.use(express.urlencoded({ limit: '30mb', extended: true }));
 app.use(helmet());
 app.use(helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }));
 app.use(morgan('common'));
-const allowedOrigins = ['http://localhost:3000']; // Add allowed frontend origins
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001']; // Add allowed frontend origins
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -36,6 +38,7 @@ app.use(
   })
 );
 
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use(cors());
 app.use('/api/users', userRoutes);
 app.use('/api/tasks', taskRoutes);

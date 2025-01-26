@@ -1,85 +1,122 @@
 import Quest from '../models/Quest.js';
 import Task from '../models/task.js';
 import openai from '../config/openai.js';
+import pLimit from 'p-limit';
 
 /**
  * Create a quest from a task.
  */
-export const createQuestFromTask = async (req, res) => {
-  const { taskId } = req.body;
+export const createQuestsFromTasks = async (req, res) => {
+  const { taskIds } = req.body;
 
-  // Validate taskId
-  if (!taskId) {
-    return res.status(400).json({ error: 'Task ID is required' });
+  // Validate the input
+  if (!taskIds || !Array.isArray(taskIds) || taskIds.length === 0) {
+    return res.status(400).json({ error: 'An array of task IDs is required' });
   }
 
   try {
-    // 1. Ensure the task belongs to the authenticated user
-    const task = await Task.findOne({ _id: taskId, user: req.user.id });
-    if (!task) {
-      return res.status(404).json({ error: 'Task not found or not owned by the user' });
-    }
+    const userId = req.user.id;
+    const createdQuests = [];
+    const skippedTasks = [];
 
-    // 2. Construct a concise prompt for OpenAI
-    const prompt = `
-      Create a short and concise fantasy RPG-style quest based on the following real-life task. The quest description should be no longer than 2-3 sentences, The response must be pure JSON, with no additional text or formatting:
-      
-      Task Title: ${task.title}
-      Task Description: ${task.description}
+    // Find all tasks in one query
+    const tasks = await Task.find({ _id: { $in: taskIds }, user: userId });
+    const taskMap = new Map(tasks.map((task) => [task._id.toString(), task]));
 
-      Format the response as JSON:
-      {
-        "questTitle": "A short creative title for the quest",,
-        "questDescription": "A concise and engaging description for the quest in 2-3 sentences."
+    // Check for already existing quests
+    const existingQuests = await Quest.find({ originalTask: { $in: taskIds } });
+    const existingTaskIds = new Set(
+      existingQuests.map((quest) => quest.originalTask.toString())
+    );
+
+    // Create a rate limit for OpenAI API calls
+    const limit = pLimit(3); // Allow up to 3 concurrent requests
+    const openAiRequests = [];
+
+    // Process each task
+    for (const taskId of taskIds) {
+      const task = taskMap.get(taskId);
+      if (!task) {
+        skippedTasks.push({
+          taskId,
+          reason: 'Task not found or not owned by the user',
+        });
+        continue;
       }
-    `;
 
-    // 3. Call OpenAI API (updated to use chat completion)
-    const response = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4-turbo', // Configurable model
-      messages: [
-        { role: 'system', content: 'You are a creative assistant that specialises in writing fantasy RPG quests based on real-life tasks.' },
-        { role: 'user', content: prompt },
-      ],
-      max_tokens: 100,
-      temperature: 0.5,
-    });
+      if (existingTaskIds.has(taskId)) {
+        skippedTasks.push({
+          taskId,
+          reason: 'Quest already exists for this task',
+        });
+        continue;
+      }
 
-    // Handle potential response issues
-    if (!response || !response.choices || response.choices.length === 0) {
-      return res.status(500).json({ error: 'Invalid response from OpenAI' });
+      // Prepare OpenAI request
+      openAiRequests.push(
+        limit(async () => {
+          try {
+            const prompt = `
+                Create a short and concise fantasy RPG-style quest based on the following real-life task. The quest description should be no longer than 2-3 sentences, The response must be pure JSON, with no additional text or formatting:
+                
+                Task Title: ${task.title}
+                Task Description: ${task.description}
+              `;
+
+            const response = await openai.chat.completions.create({
+              model: process.env.OPENAI_MODEL || 'gpt-4-turbo',
+              messages: [
+                {
+                  role: 'system',
+                  content:
+                    'You are a creative assistant that specialises in writing fantasy RPG quests based on real-life tasks.',
+                },
+                { role: 'user', content: prompt },
+              ],
+              max_tokens: 100,
+              temperature: 0.5,
+            });
+
+            if (!response.choices || response.choices.length === 0) {
+              throw new Error('Invalid response from OpenAI API');
+            }
+
+            const rawText = response.choices[0].message.content.trim();
+            const questData = JSON.parse(rawText);
+
+            // Add to created quests
+            createdQuests.push({
+              user: userId,
+              originalTask: task._id,
+              questTitle: questData.questTitle || 'Untitled Quest',
+              questDescription: questData.questDescription || 'No description available.',
+              isComplete: false,
+            });
+          } catch (error) {
+            console.error(`Failed to process task ID ${taskId}:`, error.message);
+            skippedTasks.push({ taskId, reason: 'OpenAI response error' });
+          }
+        })
+      );
     }
 
-    // 4. Parse OpenAI response
-    const rawText = response.choices[0].message.content.trim();
-    const sanitisedText = rawText
-      .replace(/\\n/g, '\\n') // Ensure newlines are escaped
-      .replace(/\\\"/g, '"') // Fix escaped quotes
-      .replace(/\\$/g, ''); // Remove trailing backslashes
-    let questData;
-    try {
-      questData = JSON.parse(sanitisedText); // Parse the JSON returned by OpenAI
-    } catch (error) {
-      console.error('Error parsing OpenAI response:', sanitisedText);
-      return res.status(500).json({ error: 'Failed to parse OpenAI response', details: sanitisedText });
+    // Wait for all OpenAI requests to finish
+    await Promise.all(openAiRequests);
+
+    // Insert all created quests into the database
+    if (createdQuests.length > 0) {
+      await Quest.insertMany(createdQuests);
     }
 
-    // 5. Save the quest in the database
-    const newQuest = new Quest({
-      user: req.user.id,
-      originalTask: task._id,
-      questTitle: questData.questTitle || 'Untitled Quest',
-      questDescription: questData.questDescription || 'No description available.',
-      isComplete: false, // Default to incomplete
+    // Return the results
+    res.status(201).json({
+      message: `${createdQuests.length} quests created successfully.`,
+      quests: createdQuests,
+      skippedTasks,
     });
-
-    await newQuest.save();
-
-    // 6. Respond with the created quest
-    res.status(201).json(newQuest);
   } catch (error) {
-    console.error('Error creating quest:', error.message);
-    res.status(500).json({ error: 'Failed to create quest', details: error.message });
+    console.error('Error creating quests:', error.message);
+    res.status(500).json({ error: 'Failed to create quests', details: error.message });
   }
 };
 

@@ -1,12 +1,12 @@
-import express from 'express';
+import express from 'express'
 import {
   createQuestsFromTasks,
   getQuestsByUser,
   completeQuest,
-} from '../controllers/questController.js';
-import protect from '../middlewares/authMiddleware.js';
+} from '../controllers/questController.js'
+import protect from '../middlewares/authMiddleware.js'
 
-const router = express.Router();
+const router = express.Router()
 
 /**
  * @swagger
@@ -80,7 +80,7 @@ const router = express.Router();
  *       500:
  *         description: Internal server error
  */
-router.post('/create', protect, createQuestsFromTasks);
+router.post('/create', protect, createQuestsFromTasks)
 
 /**
  * @swagger
@@ -104,7 +104,7 @@ router.post('/create', protect, createQuestsFromTasks);
  *       500:
  *         description: Internal server error
  */
-router.get('/', protect, getQuestsByUser);
+router.get('/', protect, getQuestsByUser)
 
 /**
  * @swagger
@@ -143,6 +143,6 @@ router.get('/', protect, getQuestsByUser);
  *       500:
  *         description: Internal server error
  */
-router.patch('/:questId/complete', protect, completeQuest);
+router.patch('/:questId/complete', protect, completeQuest)
 
-export default router;
+export default router

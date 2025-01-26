@@ -1,5 +1,5 @@
-import swaggerJsDoc from 'swagger-jsdoc';
-import swaggerUi from 'swagger-ui-express';
+import swaggerJsDoc from 'swagger-jsdoc'
+import swaggerUi from 'swagger-ui-express'
 
 const swaggerOptions = {
   definition: {
@@ -21,8 +21,8 @@ const swaggerOptions = {
     ],
   },
   apis: ['/Users/aryan/Project-RPG/backend/routes/*.js'], // Correct path for all .js files in the routes folder
-};
+}
 
-const swaggerDocs = swaggerJsDoc(swaggerOptions);
+const swaggerDocs = swaggerJsDoc(swaggerOptions)
 
-export { swaggerDocs, swaggerUi };
+export { swaggerDocs, swaggerUi }

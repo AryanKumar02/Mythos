@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from 'mongoose'
 
 const taskSchema = new mongoose.Schema(
   {
@@ -33,9 +33,9 @@ const taskSchema = new mongoose.Schema(
       default: 'other', // Optional category
     },
   },
-  { timestamps: true } // Automatically add createdAt and updatedAt fields
-);
+  { timestamps: true }, // Automatically add createdAt and updatedAt fields
+)
 
-const Task = mongoose.model('Task', taskSchema);
+const Task = mongoose.model('Task', taskSchema)
 
-export default Task;
+export default Task

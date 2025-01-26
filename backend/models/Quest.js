@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from 'mongoose'
 
 const questSchema = new mongoose.Schema(
   {
@@ -25,9 +25,9 @@ const questSchema = new mongoose.Schema(
       default: false, // Marks whether the quest has been completed
     },
   },
-  { timestamps: true } // Automatically add createdAt and updatedAt fields
-);
+  { timestamps: true }, // Automatically add createdAt and updatedAt fields
+)
 
-const Quest = mongoose.model('Quest', questSchema);
+const Quest = mongoose.model('Quest', questSchema)
 
-export default Quest;
+export default Quest

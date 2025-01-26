@@ -1,14 +1,14 @@
-import express from 'express';
+import express from 'express'
 import {
   createTask,
   getTasks,
   getTaskById,
   updateTask,
   deleteTask,
-} from '../controllers/taskController.js';
-import protect from '../middlewares/authMiddleware.js'; // Ensure users are authenticated
+} from '../controllers/taskController.js'
+import protect from '../middlewares/authMiddleware.js' // Ensure users are authenticated
 
-const router = express.Router();
+const router = express.Router()
 
 /**
  * @swagger
@@ -81,7 +81,7 @@ const router = express.Router();
  *       500:
  *         description: Internal server error
  */
-router.post('/', protect, createTask);
+router.post('/', protect, createTask)
 
 /**
  * @swagger
@@ -105,7 +105,7 @@ router.post('/', protect, createTask);
  *       500:
  *         description: Internal server error
  */
-router.get('/', protect, getTasks);
+router.get('/', protect, getTasks)
 
 /**
  * @swagger
@@ -136,7 +136,7 @@ router.get('/', protect, getTasks);
  *       500:
  *         description: Internal server error
  */
-router.get('/:id', protect, getTaskById);
+router.get('/:id', protect, getTaskById)
 
 /**
  * @swagger
@@ -185,7 +185,7 @@ router.get('/:id', protect, getTaskById);
  *       500:
  *         description: Internal server error
  */
-router.put('/:id', protect, updateTask);
+router.put('/:id', protect, updateTask)
 
 /**
  * @swagger
@@ -212,6 +212,6 @@ router.put('/:id', protect, updateTask);
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', protect, deleteTask);
+router.delete('/:id', protect, deleteTask)
 
-export default router;
+export default router

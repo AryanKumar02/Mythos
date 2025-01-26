@@ -1,8 +1,12 @@
-import express from 'express';
-import { registerUser, loginUser, getUserProfile } from '../controllers/userController.js';
-import protect from '../middlewares/authMiddleware.js';
+import express from 'express'
+import {
+  registerUser,
+  loginUser,
+  getUserProfile,
+} from '../controllers/userController.js'
+import protect from '../middlewares/authMiddleware.js'
 
-const router = express.Router();
+const router = express.Router()
 
 /**
  * @swagger
@@ -75,7 +79,7 @@ const router = express.Router();
  *       500:
  *         description: Internal server error
  */
-router.post('/register', registerUser);
+router.post('/register', registerUser)
 
 /**
  * @swagger
@@ -115,7 +119,7 @@ router.post('/register', registerUser);
  *       500:
  *         description: Internal server error
  */
-router.post('/login', loginUser);
+router.post('/login', loginUser)
 
 /**
  * @swagger
@@ -137,6 +141,6 @@ router.post('/login', loginUser);
  *       500:
  *         description: Internal server error
  */
-router.get('/profile', protect, getUserProfile);
+router.get('/profile', protect, getUserProfile)
 
-export default router;
+export default router

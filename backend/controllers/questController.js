@@ -1,7 +1,9 @@
 import Quest from '../models/Quest.js'
 import Task from '../models/task.js'
 import openai from '../config/openai.js'
+import User from '../models/User.js'
 import pLimit from 'p-limit'
+import moment from 'moment'
 
 /**
  * Create a quest from a task.
@@ -58,7 +60,7 @@ export const createQuestsFromTasks = async (req, res) => {
           try {
             const prompt = `
                 Create a short and concise fantasy RPG-style quest based on the following real-life task. The quest description should be no longer than 2-3 sentences, The response must be pure JSON, with no additional text or formatting:
-                
+
                 Task Title: ${task.title}
                 Task Description: ${task.description}
               `
@@ -144,24 +146,66 @@ export const getQuestsByUser = async (req, res) => {
  * Mark a quest as complete.
  */
 export const completeQuest = async (req, res) => {
-  const { questId } = req.params
+  const { questId } = req.params // Quest ID from the request
+  const userId = req.user.id // Extract the user ID from the authenticated user
 
   try {
-    const quest = await Quest.findOne({ _id: questId, user: req.user.id })
+    // Find the quest
+    const quest = await Quest.findOne({ _id: questId, user: userId })
     if (!quest) {
-      return res
-        .status(404)
-        .json({ error: 'Quest not found or not owned by the user' })
+      return res.status(404).json({ error: 'Quest not found' })
     }
 
+    if (quest.isComplete) {
+      return res
+        .status(400)
+        .json({ error: 'Quest is already marked as complete' })
+    }
+
+    // Mark the quest as complete
     quest.isComplete = true
     await quest.save()
 
-    res.status(200).json(quest)
+    // Handle streak logic
+    const user = await User.findById(userId)
+    const today = new Date().toISOString().split('T')[0]
+    const lastStreakDate = user.lastStreakDate
+      ? user.lastStreakDate.toISOString().split('T')[0]
+      : null
+
+    if (lastStreakDate && new Date(lastStreakDate) < new Date(today)) {
+      user.streak = 0
+      user.dailyQuestCount = 0
+      user.lastStreakDate = null
+    } else if (lastStreakDate === today) {
+      user.dailyQuestCount += 1
+    } else {
+      user.dailyQuestCount = 1
+      user.lastStreakDate = new Date()
+    }
+
+    // Check if the user completed 3 quests today
+    if (user.dailyQuestCount === 3) {
+      user.streak += 1
+      user.dailyQuestCount = 0
+    }
+
+    await user.save()
+
+    // Format lastStreakDate for frontend
+    const formattedLastStreakDate = user.lastStreakDate
+      ? moment(user.lastStreakDate).format('MMMM Do, YYYY')
+      : null
+
+    res.status(200).json({
+      message: 'Quest marked as complete',
+      quest,
+      streak: user.streak,
+      dailyQuestCount: user.dailyQuestCount,
+      lastStreakDate: formattedLastStreakDate,
+    })
   } catch (error) {
-    console.error('Error completing quest:', error.message)
-    res
-      .status(500)
-      .json({ error: 'Failed to complete quest', details: error.message })
+    console.error('Error completing quest:', error)
+    res.status(500).json({ error: 'Internal server error' })
   }
 }

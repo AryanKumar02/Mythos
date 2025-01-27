@@ -64,6 +64,18 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null, // Expiry for the password reset token
     },
+    streak: {
+      type: Number,
+      default: 0, // Tracks the current streak
+    },
+    lastStreakDate: {
+      type: Date,
+      default: null, // The last date the streak was updated
+    },
+    dailyQuestCount: {
+      type: Number,
+      default: 0, // Tracks the number of quests completed today
+    },
   },
   { timestamps: true }, // Automatically add createdAt and updatedAt fields
 )
@@ -84,7 +96,7 @@ userSchema.pre('save', async function (next) {
 userSchema.methods.comparePassword = async function (candidatePassword) {
   try {
     return await bcrypt.compare(candidatePassword, this.password)
-  } catch (error) {
+  } catch {
     throw new Error('Password comparison failed')
   }
 }

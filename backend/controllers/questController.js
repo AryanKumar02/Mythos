@@ -168,23 +168,40 @@ export const completeQuest = async (req, res) => {
 
     // Handle streak logic
     const user = await User.findById(userId)
-    const today = new Date().toISOString().split('T')[0]
+    const today = new Date().toISOString().split('T')[0] // Current date
     const lastStreakDate = user.lastStreakDate
       ? user.lastStreakDate.toISOString().split('T')[0]
       : null
 
-    if (lastStreakDate && new Date(lastStreakDate) < new Date(today)) {
-      user.streak = 0
-      user.dailyQuestCount = 0
-      user.lastStreakDate = null
-    } else if (lastStreakDate === today) {
-      user.dailyQuestCount += 1
+    // Define a grace period in days (e.g., 1 day for grace)
+    const GRACE_PERIOD_DAYS = 1
+
+    // If the last streak date exists, check if the user missed the streak
+    if (lastStreakDate) {
+      const lastDate = new Date(lastStreakDate)
+      const graceDate = new Date(lastDate)
+      graceDate.setDate(graceDate.getDate() + GRACE_PERIOD_DAYS) // Add grace period
+
+      if (new Date(today) > graceDate) {
+        // Reset streak if the grace period has passed
+        user.streak = 0
+        user.dailyQuestCount = 0
+        user.lastStreakDate = null
+      } else if (today === lastStreakDate) {
+        // Continue today's streak
+        user.dailyQuestCount += 1
+      } else {
+        // Update streak within the grace period
+        user.dailyQuestCount = 1
+        user.lastStreakDate = new Date()
+      }
     } else {
+      // No streak exists, start fresh
       user.dailyQuestCount = 1
       user.lastStreakDate = new Date()
     }
 
-    // Check if the user completed 3 quests today
+    // Increment streak if 3 quests are completed
     if (user.dailyQuestCount === 3) {
       user.streak += 1
       user.dailyQuestCount = 0

@@ -5,6 +5,8 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { createServer } from 'http' // Required for Socket.IO
+import { Server } from 'socket.io' // Import Socket.IO
 import connectDB from './config/db.js'
 import { swaggerDocs, swaggerUi } from './config/swagger.js'
 import userRoutes from './routes/userRoutes.js'
@@ -38,18 +40,47 @@ app.use(
 )
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
-app.use(cors())
 app.use('/api/users', userRoutes)
 app.use('/api/tasks', taskRoutes)
 app.use('/api/quests', questRoutes)
 
 app.use('/assets', express.static(path.resolve(__dirname, 'public/assets')))
 
-/* MongoDB Connection */
+/* Create HTTP Server */
+const server = createServer(app) // Create the HTTP server for Socket.IO
+
+/* Socket.IO Setup */
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins, // Allow only specific frontend origins
+  },
+})
+
+// Handle Socket.IO connections
+io.on('connection', (socket) => {
+  console.log(`User connected: ${socket.id}`)
+
+  // Example: Listening for a custom event
+  socket.on('customEvent', (data) => {
+    console.log('Received data from client:', data)
+  })
+
+  // Handle disconnection
+  socket.on('disconnect', () => {
+    console.log(`User disconnected: ${socket.id}`)
+  })
+})
+
+// Export io for use in other files (e.g., controllers)
+export {
+  io,
+
+  /* MongoDB Connection */
+}
 ;(async () => {
   try {
     await connectDB()
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}`)
     })
   } catch (error) {

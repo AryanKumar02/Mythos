@@ -1,0 +1,20 @@
+# .editorconfig
+# Ensure this is the top-most EditorConfig file
+root = true
+
+# Base rules for all file types
+[*]
+indent_style = space        # Matches tabWidth = 2 in Prettier (using spaces, not tabs)
+indent_size = 2
+end_of_line = lf            # LF is default for cross-platform repos (Linux/Mac/Win)
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# (Optional) Example override for Markdown
+[*.md]
+trim_trailing_whitespace = false
+
+# (Optional) Example override for Makefiles (which often require tabs)
+[Makefile]
+indent_style = tab

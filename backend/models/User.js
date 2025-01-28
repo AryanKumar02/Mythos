@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
-import bcrypt from 'bcrypt';
-import crypto from 'crypto'; // For generating unique tokens
-import validator from 'validator'; // For email validation
+import mongoose from 'mongoose'
+import bcrypt from 'bcrypt'
+import crypto from 'crypto' // For generating unique tokens
+import validator from 'validator' // For email validation
 
 // Define the User schema
 const userSchema = new mongoose.Schema(
@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema(
       validate: {
         validator: validator.isEmail, // Validate email format
         message: 'Please provide a valid email address',
-      }, // Basic email validation regex
+      },
     },
     password: {
       type: String,
@@ -31,15 +31,19 @@ const userSchema = new mongoose.Schema(
       validate: {
         validator: function (v) {
           if (!/(?=.*[A-Z])/.test(v)) {
-            throw new Error('Password must contain at least one uppercase letter');
+            throw new Error(
+              'Password must contain at least one uppercase letter',
+            )
           }
           if (!/(?=.*\W)/.test(v)) {
-            throw new Error('Password must contain at least one special character');
+            throw new Error(
+              'Password must contain at least one special character',
+            )
           }
           if (!/(?=.*\d)/.test(v)) {
-            throw new Error('Password must contain at least one digit');
+            throw new Error('Password must contain at least one digit')
           }
-          return true;
+          return true
         },
       },
     },
@@ -60,40 +64,55 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null, // Expiry for the password reset token
     },
+    streak: {
+      type: Number,
+      default: 0, // Tracks the current streak
+    },
+    lastStreakDate: {
+      type: Date,
+      default: null, // The last date the streak was updated
+    },
+    dailyQuestCount: {
+      type: Number,
+      default: 0, // Tracks the number of quests completed today
+    },
   },
-  { timestamps: true } // Automatically add createdAt and updatedAt fields
-);
+  { timestamps: true }, // Automatically add createdAt and updatedAt fields
+)
 
 // Pre-save hook to hash the password before saving
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next(); // Skip hashing if password is unchanged
+  if (!this.isModified('password')) return next() // Skip hashing if password is unchanged
   try {
-    const salt = await bcrypt.genSalt(10); // Generate a salt
-    this.password = await bcrypt.hash(this.password, salt); // Hash the password
-    next();
+    const salt = await bcrypt.genSalt(10) // Generate a salt
+    this.password = await bcrypt.hash(this.password, salt) // Hash the password
+    next()
   } catch (error) {
-    next(error);
+    next(error)
   }
-});
+})
 
 // Method to compare passwords during login
 userSchema.methods.comparePassword = async function (candidatePassword) {
   try {
-    return await bcrypt.compare(candidatePassword, this.password);
-  } catch (error) {
-    throw new Error('Password comparison failed');
+    return await bcrypt.compare(candidatePassword, this.password)
+  } catch {
+    throw new Error('Password comparison failed')
   }
-};
+}
 
 // Method to generate a password reset token
 userSchema.methods.generatePasswordResetToken = function () {
-  const resetToken = crypto.randomBytes(32).toString('hex'); // Generate a random token
-  this.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex'); // Hash the token
-  this.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // Token valid for 10 minutes
-  return resetToken;
-};
+  const resetToken = crypto.randomBytes(32).toString('hex') // Generate a random token
+  this.resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex') // Hash the token
+  this.resetPasswordExpires = Date.now() + 10 * 60 * 1000 // Token valid for 10 minutes
+  return resetToken
+}
 
 // Create and export the User model
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model('User', userSchema)
 
-export default User; // Export the User model
+export default User // Export the User model

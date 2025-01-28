@@ -1,75 +1,90 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import helmet from 'helmet';
-import morgan from 'morgan';
-import path from 'path';
-import multer from 'multer';
-import { fileURLToPath } from 'url';
-import connectDB from './config/db.js';
+import express from 'express'
+import cors from 'cors'
+import dotenv from 'dotenv'
+import helmet from 'helmet'
+import morgan from 'morgan'
+import path from 'path'
+import { fileURLToPath } from 'url'
+import { createServer } from 'http' // Required for Socket.IO
+import { Server } from 'socket.io' // Import Socket.IO
+import connectDB from './config/db.js'
+import { swaggerDocs, swaggerUi } from './config/swagger.js'
+import userRoutes from './routes/userRoutes.js'
+import taskRoutes from './routes/taskRoutes.js'
+import questRoutes from './routes/questRoutes.js'
 
 /* Configurations */
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-dotenv.config();
-const app = express();
-const PORT = process.env.PORT || 5000;
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+dotenv.config()
+const app = express()
+const PORT = process.env.PORT || 5000
 
 /* Middleware */
-app.use(express.json({ limit: '30mb' }));
-app.use(express.urlencoded({ limit: '30mb', extended: true }));
-app.use(helmet());
-app.use(helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }));
-app.use(morgan('common'));
-const allowedOrigins = ['http://localhost:3000']; // Add allowed frontend origins
+app.use(express.json({ limit: '30mb' }))
+app.use(express.urlencoded({ limit: '30mb', extended: true }))
+app.use(helmet())
+app.use(helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }))
+app.use(morgan('common'))
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001'] // Add allowed frontend origins
 app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
+        callback(null, true)
       } else {
-        callback(new Error('Not allowed by CORS'));
+        callback(new Error('Not allowed by CORS'))
       }
-    }
-  })
-);
+    },
+  }),
+)
 
-app.use('/assets', express.static(path.resolve(__dirname, 'public/assets')));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
+app.use('/api/users', userRoutes)
+app.use('/api/tasks', taskRoutes)
+app.use('/api/quests', questRoutes)
 
-/* File Upload */
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'public/assets');
+app.use('/assets', express.static(path.resolve(__dirname, 'public/assets')))
+
+/* Create HTTP Server */
+const server = createServer(app) // Create the HTTP server for Socket.IO
+
+/* Socket.IO Setup */
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins, // Allow only specific frontend origins
   },
-  filename: (req, file, cb) => {
-    cb(null, file.originalname);
-  }
-});
-const upload = multer({ storage });
+})
 
-/* Test Route */
-app.get('/', (req, res) => {
-  res.send('API is running...');
-});
+// Handle Socket.IO connections
+io.on('connection', (socket) => {
+  console.log(`User connected: ${socket.id}`)
 
-/* File Upload Test Route */
-app.post('/upload', upload.single('file'), (req, res) => {
+  // Example: Listening for a custom event
+  socket.on('customEvent', (data) => {
+    console.log('Received data from client:', data)
+  })
+
+  // Handle disconnection
+  socket.on('disconnect', () => {
+    console.log(`User disconnected: ${socket.id}`)
+  })
+})
+
+// Export io for use in other files (e.g., controllers)
+export {
+  io,
+
+  /* MongoDB Connection */
+}
+;(async () => {
   try {
-    res.status(200).send({ message: 'File uploaded successfully' });
+    await connectDB()
+    server.listen(PORT, () => {
+      console.log(`Server is running on http://localhost:${PORT}`)
+    })
   } catch (error) {
-    res.status(500).send({ error: 'File upload failed' });
+    console.error('Failed to connect to MongoDB:', error.message)
+    process.exit(1)
   }
-});
-
-/* MongoDB Connection */
-(async () => {
-  try {
-    await connectDB();
-    app.listen(PORT, () => {
-      console.log(`Server is running on http://localhost:${PORT}`);
-    });
-  } catch (error) {
-    console.error('Failed to connect to MongoDB:', error.message);
-    process.exit(1);
-  }
-})();
+})()

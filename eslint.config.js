@@ -18,6 +18,9 @@ export default [
   {
     files: ['**/*.test.js', '**/*.spec.js', '**/__tests__/**/*.js'],
     languageOptions: {
+      env: {
+        jest: true,
+      },
       globals: {
         ...globals.jest, // Add Jest only to these test files
       },

@@ -1,8 +1,16 @@
 import mongoose from 'mongoose'
 import dotenv from 'dotenv'
-dotenv.config({ path: '/Users/aryan/Project-RPG/backend/.env' }) // Load environment variables
+dotenv.config() // Load environment variables
 
 const connectDB = async () => {
+  const NODE_ENV = process.env.NODE_ENV || 'development'
+
+  if (NODE_ENV === 'test') {
+    // In test environment, skip connecting using MONGO_URI
+    console.log('Running in test environment. Skipping DB connection.')
+    return
+  }
+
   const MONGO_URI = process.env.MONGO_URI
 
   if (!MONGO_URI) {

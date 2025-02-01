@@ -76,6 +76,16 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0, // Tracks the number of quests completed today
     },
+    // XP & Leveling System
+    xp: {
+      type: Number,
+      default: 0,
+    },
+    // Stores XP points
+    level: {
+      type: Number,
+      default: 1,
+    },
   },
   { timestamps: true }, // Automatically add createdAt and updatedAt fields
 )

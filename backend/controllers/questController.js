@@ -2,7 +2,7 @@ import Quest from '../models/Quest.js'
 import Task from '../models/task.js'
 import openai from '../config/openai.js'
 import User from '../models/User.js'
-//import pLimit from 'p-limit'
+import pLimit from 'p-limit'
 import { io } from '../index.js'
 import {
   getPaginationParams,
@@ -35,46 +35,48 @@ export const createQuestsFromTasks = async (req, res) => {
     )
     const taskMap = new Map(tasks.map((t) => [t._id.toString(), t]))
 
-    //const limit = pLimit(5) // Increased concurrency for modern GPT-4 Turbo
+    const limit = pLimit(5) // Increased concurrency for modern GPT-4 Turbo
     const results = await Promise.allSettled(
-      taskIds.map(async (taskId) => {
-        if (existingTaskIds.has(taskId))
-          return { taskId, status: 'skipped', reason: 'Quest exists' }
+      taskIds.map((taskId) =>
+        limit(async () => {
+          if (existingTaskIds.has(taskId))
+            return { taskId, status: 'skipped', reason: 'Quest exists' }
 
-        const task = taskMap.get(taskId)
-        if (!task)
-          return { taskId, status: 'skipped', reason: 'Task not found' }
+          const task = taskMap.get(taskId)
+          if (!task)
+            return { taskId, status: 'skipped', reason: 'Task not found' }
 
-        try {
-          const prompt = `Create a concise RPG quest (2-3 sentences) for: ${task.title} - ${task.description}. Inlcude the quest title, description, and XP reward.`
+          try {
+            const prompt = `Create a concise RPG quest (2-3 sentences) for: ${task.title} - ${task.description}. Include the quest title, description, and XP reward.`
 
-          const response = await openai.chat.completions.create({
-            model: process.env.OPENAI_MODEL || 'gpt-4-turbo',
-            messages: [SYSTEM_MESSAGE, { role: 'user', content: prompt }],
-            response_format: { type: 'json_object' },
-            max_tokens: parseFloat(process.env.OPENAI_MAX_TOKENS),
-            temperature: parseFloat(process.env.OPENAI_TEMPERATURE), // Lower temp for more consistent JSON
-          })
+            const response = await openai.chat.completions.create({
+              model: process.env.OPENAI_MODEL || 'gpt-4',
+              messages: [SYSTEM_MESSAGE, { role: 'user', content: prompt }],
+              response_format: { type: 'json_object' },
+              max_tokens: parseFloat(process.env.OPENAI_MAX_TOKENS),
+              temperature: parseFloat(process.env.OPENAI_TEMPERATURE), // Lower temp for more consistent JSON
+            })
 
-          const rawJSON = response.choices[0].message.content
-          const questData = parseAndValidateQuestJSON(rawJSON)
+            const rawJSON = response.choices[0].message.content
+            const questData = parseAndValidateQuestJSON(rawJSON)
 
-          return {
-            taskId,
-            status: 'success',
-            quest: {
-              user: userId,
-              originalTask: task._id,
-              ...questData,
-              isComplete: false,
-              xpReward: Math.min(Math.max(questData.xp, 10), 50), // Clamp XP between 10-50
-            },
+            return {
+              taskId,
+              status: 'success',
+              quest: {
+                user: userId,
+                originalTask: task._id,
+                ...questData,
+                isComplete: false,
+                xpReward: Math.min(Math.max(questData.xp, 10), 50), // Clamp XP between 10-50
+              },
+            }
+          } catch (error) {
+            console.error(`Task ${taskId} failed:`, error)
+            return { taskId, status: 'error', reason: 'API error' }
           }
-        } catch (error) {
-          console.error(`Task ${taskId} failed:`, error)
-          return { taskId, status: 'error', reason: 'API error' }
-        }
-      }),
+        }),
+      ),
     )
 
     const [createdQuests, skippedTasks] = results.reduce(

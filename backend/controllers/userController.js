@@ -90,3 +90,24 @@ export const getUserProfile = async (req, res) => {
       .json({ error: 'Failed to fetch profile', details: error.message })
   }
 }
+
+// Update avatar settings for the user
+export const updateAvatar = async (req, res) => {
+  const { avatarSeed, avatarStyle } = req.body;
+  try {
+    // Build the update object
+    const updateData = { avatarSeed };
+    if (avatarStyle) {
+      updateData.avatarStyle = avatarStyle;
+    }
+
+    const user = await User.findByIdAndUpdate(req.user.id, updateData, { new: true });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json({
+      message: 'Avatar updated successfully',
+      avatarUrl: user.avatarUrl, // This uses the virtual property from the User schema
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update avatar', details: error.message });
+  }
+};

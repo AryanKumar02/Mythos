@@ -143,4 +143,51 @@ router.post('/login', loginUser)
  */
 router.get('/profile', protect, getUserProfile)
 
+/**
+ * @swagger
+ * /users/update-avatar:
+ *   put:
+ *     summary: Update the user's avatar settings
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               avatarSeed:
+ *                 type: string
+ *                 description: The new seed for generating the avatar.
+ *               avatarStyle:
+ *                 type: string
+ *                 description: (Optional) The style for the avatar (e.g., "initials", "bottts", etc.).
+ *             example:
+ *               avatarSeed: "NobleKnight"
+ *               avatarStyle: "initials"
+ *     responses:
+ *       200:
+ *         description: Avatar updated successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Avatar updated successfully
+ *                 avatarUrl:
+ *                   type: string
+ *                   example: "https://api.dicebear.com/9.x/initials/svg?seed=NobleKnight"
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Failed to update avatar
+ */
+router.put('/update-avatar', protect, updateAvatar);
+
 export default router

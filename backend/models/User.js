@@ -88,11 +88,11 @@ const userSchema = new mongoose.Schema(
     },
     avatarSeed: {
       type: String,
-      default: ''
+      default: '',
     },
     avatarStyle: {
       type: String,
-      default: 'initials'
+      default: 'initials',
     },
   },
   { timestamps: true }, // Automatically add createdAt and updatedAt fields
@@ -133,15 +133,15 @@ userSchema.methods.generatePasswordResetToken = function () {
 // Virtual property to generate the avatar URL using DiceBear API v9.x
 userSchema.virtual('avatarUrl').get(function () {
   // Use avatarSeed if set; otherwise, fall back to username
-  const seed = this.avatarSeed || this.username;
+  const seed = this.avatarSeed || this.username
   // Use the chosen style (or default) to build the URL
-  const style = this.avatarStyle || 'initials';
-  return `https://api.dicebear.com/9.x/${style}/svg?seed=${encodeURIComponent(seed)}`;
-});
+  const style = this.avatarStyle || 'initials'
+  return `https://api.dicebear.com/9.x/${style}/svg?seed=${encodeURIComponent(seed)}`
+})
 
 // Ensure that virtual properties are included when converting to JSON/objects
-userSchema.set('toJSON', { virtuals: true });
-userSchema.set('toObject', { virtuals: true });
+userSchema.set('toJSON', { virtuals: true })
+userSchema.set('toObject', { virtuals: true })
 
 // Create and export the User model
 const User = mongoose.model('User', userSchema)

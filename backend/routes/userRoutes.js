@@ -3,6 +3,7 @@ import {
   registerUser,
   loginUser,
   getUserProfile,
+  updateAvatar,
 } from '../controllers/userController.js'
 import protect from '../middlewares/authMiddleware.js'
 
@@ -188,6 +189,6 @@ router.get('/profile', protect, getUserProfile)
  *       500:
  *         description: Failed to update avatar
  */
-router.put('/update-avatar', protect, updateAvatar);
+router.put('/update-avatar', protect, updateAvatar)
 
 export default router

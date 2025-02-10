@@ -24,6 +24,10 @@ const questSchema = new mongoose.Schema(
       type: Boolean,
       default: false, // Marks whether the quest has been completed
     },
+    xpReward: {
+      type: Number,
+      default: 10,
+    },
   },
   { timestamps: true }, // Automatically add createdAt and updatedAt fields
 )

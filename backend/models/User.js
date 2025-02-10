@@ -76,6 +76,24 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0, // Tracks the number of quests completed today
     },
+    // XP & Leveling System
+    xp: {
+      type: Number,
+      default: 0,
+    },
+    // Stores XP points
+    level: {
+      type: Number,
+      default: 1,
+    },
+    avatarSeed: {
+      type: String,
+      default: '',
+    },
+    avatarStyle: {
+      type: String,
+      default: 'initials',
+    },
   },
   { timestamps: true }, // Automatically add createdAt and updatedAt fields
 )
@@ -111,6 +129,19 @@ userSchema.methods.generatePasswordResetToken = function () {
   this.resetPasswordExpires = Date.now() + 10 * 60 * 1000 // Token valid for 10 minutes
   return resetToken
 }
+
+// Virtual property to generate the avatar URL using DiceBear API v9.x
+userSchema.virtual('avatarUrl').get(function () {
+  // Use avatarSeed if set; otherwise, fall back to username
+  const seed = this.avatarSeed || this.username
+  // Use the chosen style (or default) to build the URL
+  const style = this.avatarStyle || 'initials'
+  return `https://api.dicebear.com/9.x/${style}/svg?seed=${encodeURIComponent(seed)}`
+})
+
+// Ensure that virtual properties are included when converting to JSON/objects
+userSchema.set('toJSON', { virtuals: true })
+userSchema.set('toObject', { virtuals: true })
 
 // Create and export the User model
 const User = mongoose.model('User', userSchema)

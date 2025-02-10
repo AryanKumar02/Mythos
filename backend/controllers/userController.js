@@ -76,6 +76,7 @@ export const loginUser = async (req, res) => {
 // Fetch user profile (protected)
 export const getUserProfile = async (req, res) => {
   try {
+
     const user = await User.findById(req.user.id).select(
       'username email xp level',
     ) // Exclude password

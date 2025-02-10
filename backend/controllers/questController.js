@@ -187,6 +187,7 @@ export const completeQuest = async (req, res) => {
 
     await user.save()
 
+
     // Emit events
     const emitPayload = {
       xp: user.xp,

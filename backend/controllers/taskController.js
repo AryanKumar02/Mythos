@@ -9,6 +9,7 @@ const checkTaskOwnership = async (taskId, userId) => {
   }
   if (!task.user.equals(userId)) {
     // More efficient ObjectId comparison
+  if (task.user.toString() !== userId.toString()) {
     throw new Error('Access denied')
   }
   return task

@@ -1,0 +1,21 @@
+import React from "react";
+
+interface ButtonProps {
+  text: string;
+  onClick: () => void;
+  className?: string;
+  textColor?: string;
+}
+
+const Button: React.FC<ButtonProps> = ({ text, onClick, className = "", textColor = "text-white" }) => {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-[140px] h-[65px] rounded-full bg-white ${textColor} font-semibold shadow-lg hover:bg-gray-300 hover:scale-105 transition duration-300 flex items-center justify-center text-xl ${className}`}
+    >
+      {text}
+    </button>
+  );
+};
+
+export default Button;

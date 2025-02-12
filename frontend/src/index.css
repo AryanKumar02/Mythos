@@ -1,1 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Spectral+SC:wght@400;700&display=swap');
 @import "tailwindcss";
+
+@theme {
+  --font-title: 'Spectral SC', serif;
+  --font-subtitle: 'Spectral SC', serif;
+}
+
+@keyframes twinkle {
+  0% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+}
+
+.star {
+  position: absolute;
+  background-color: white;
+  border-radius: 50%;
+  opacity: 0.7;
+  animation: twinkle 3s infinite alternate ease-in-out;
+}
+
+@@keyframes shootingStar {
+  0% {
+    transform: translateX(0) translateY(0) scaleX(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(150px) translateY(50px) scaleX(1.2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(300px) translateY(100px) scaleX(1.5);
+    opacity: 0;
+  }
+}
+
+.shooting-star {
+  position: absolute;
+  width: 2px;
+  height: 100px; /* Make them long streaks */
+  background: linear-gradient(180deg, rgba(255,255,255,0.8), rgba(255,255,255,0)); /* Fades out */
+  transform-origin: center;
+  opacity: 0;
+  animation: shootingStar linear forwards;
+}
+
+body {
+  font-family: var(--font-title);
+}

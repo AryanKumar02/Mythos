@@ -26,7 +26,7 @@ app.use(express.urlencoded({ limit: '30mb', extended: true }))
 app.use(helmet())
 app.use(helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }))
 app.use(morgan('common'))
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001'] // Add allowed frontend origins
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:3001'] // Add allowed frontend origins
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -58,12 +58,9 @@ const io = new Server(server, {
 
 // Handle Socket.IO connections
 io.on('connection', (socket) => {
-  console.log(`User connected: ${socket.id}`)
-
   // Example: Listening for a custom event
-  socket.on('customEvent', (data) => {
-    console.log('Received data from client:', data)
-  })
+  // eslint-disable-next-line no-unused-vars
+  socket.on('customEvent', (data) => {})
 
   // Handle disconnection
   socket.on('disconnect', () => {

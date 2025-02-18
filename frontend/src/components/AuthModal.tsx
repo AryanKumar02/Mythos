@@ -122,9 +122,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         body: JSON.stringify({ username, email, password })
       });
 
-      console.log("Response Status:", response.status);
-      console.log("Response Headers:", response.headers.get("content-type"));
-
       const contentType = response.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {
         const text = await response.text();

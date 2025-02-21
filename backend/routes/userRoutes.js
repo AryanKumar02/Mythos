@@ -162,12 +162,8 @@ router.get('/profile', protect, getUserProfile)
  *               avatarSeed:
  *                 type: string
  *                 description: The new seed for generating the avatar.
- *               avatarStyle:
- *                 type: string
- *                 description: (Optional) The style for the avatar (e.g., "initials", "bottts", etc.).
  *             example:
  *               avatarSeed: "NobleKnight"
- *               avatarStyle: "initials"
  *     responses:
  *       200:
  *         description: Avatar updated successfully.
@@ -181,7 +177,7 @@ router.get('/profile', protect, getUserProfile)
  *                   example: Avatar updated successfully
  *                 avatarUrl:
  *                   type: string
- *                   example: "https://api.dicebear.com/9.x/initials/svg?seed=NobleKnight"
+ *                   example: "/assets/avatars/NobleKnight.png"
  *       401:
  *         description: Unauthorized
  *       404:

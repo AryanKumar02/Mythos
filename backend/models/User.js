@@ -81,7 +81,6 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    // Stores XP points
     level: {
       type: Number,
       default: 1,
@@ -89,10 +88,6 @@ const userSchema = new mongoose.Schema(
     avatarSeed: {
       type: String,
       default: '',
-    },
-    avatarStyle: {
-      type: String,
-      default: 'initials',
     },
   },
   { timestamps: true }, // Automatically add createdAt and updatedAt fields
@@ -130,13 +125,20 @@ userSchema.methods.generatePasswordResetToken = function () {
   return resetToken
 }
 
-// Virtual property to generate the avatar URL using DiceBear API v9.x
+// Virtual property to generate the avatar URL from the public assets folder
 userSchema.virtual('avatarUrl').get(function () {
-  // Use avatarSeed if set; otherwise, fall back to username
-  const seed = this.avatarSeed || this.username
-  // Use the chosen style (or default) to build the URL
-  const style = this.avatarStyle || 'initials'
-  return `https://api.dicebear.com/9.x/${style}/svg?seed=${encodeURIComponent(seed)}`
+  // Check if avatarSeed is provided and not just empty whitespace
+  if (this.avatarSeed && this.avatarSeed.trim() !== '') {
+    let seed = this.avatarSeed
+    // If the seed already contains a full path, return it as-is.
+    if (seed.startsWith('/assets/avatars/')) {
+      return seed
+    }
+    // Otherwise, construct the URL using the base path and append .svg
+    return `/assets/avatars/${encodeURIComponent(seed)}.svg`
+  }
+  // If no avatarSeed is set, return a specific default avatar.
+  return `/assets/avatars/default.svg`
 })
 
 // Ensure that virtual properties are included when converting to JSON/objects

@@ -15,7 +15,6 @@ export const registerUser = async (req, res) => {
 
   try {
     // Check if the user already exists
-    console.log('Request body:', req.body)
     const existingUser = await User.findOne({ email })
     if (existingUser) {
       return res.status(400).json({
@@ -29,12 +28,24 @@ export const registerUser = async (req, res) => {
     await user.save()
     console.log('User registered successfully:', user)
 
-    // Respond with user data and JWT
+    // Generate a JWT token
+    const token = generateToken(user._id)
+
+    // Set the token as an HTTP-only cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000,
+    })
+
+    // Respond with user data (without token in JSON)
     res.status(201).json({
       id: user._id,
       username: user.username,
       email: user.email,
-      token: generateToken(user._id),
+      token,
+      avatarUrl: user.avatarUrl,
     })
   } catch (error) {
     console.error('Error registering user:', error.message)
@@ -61,12 +72,23 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ error: 'Invalid credentials' })
     }
 
-    // Respond with user data and JWT
+    // Generate a JWT token (using your generateToken function)
+    const token = generateToken(user._id)
+
+    // Set the token as an HTTP-only cookie
+    res.cookie('token', token, {
+      httpOnly: true, // Cannot be accessed via client-side JS
+      secure: process.env.NODE_ENV === 'production', // True in production (HTTPS only)
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000,
+    })
+
     res.status(200).json({
       id: user._id,
       username: user.username,
       email: user.email,
-      token: generateToken(user._id),
+      token,
+      avatarUrl: user.avatarUrl,
     })
   } catch (error) {
     res.status(500).json({ error: 'Failed to log in', details: error.message })
@@ -93,17 +115,14 @@ export const getUserProfile = async (req, res) => {
 
 // Update avatar settings for the user
 export const updateAvatar = async (req, res) => {
-  const { avatarSeed, avatarStyle } = req.body
+  const { avatarSeed } = req.body
   try {
-    // Build the update object
-    const updateData = { avatarSeed }
-    if (avatarStyle) {
-      updateData.avatarStyle = avatarStyle
-    }
-
-    const user = await User.findByIdAndUpdate(req.user.id, updateData, {
-      new: true,
-    })
+    // Update the user's avatarSeed only
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { avatarSeed },
+      { new: true },
+    )
     if (!user) return res.status(404).json({ error: 'User not found' })
     res.json({
       message: 'Avatar updated successfully',

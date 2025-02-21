@@ -12,6 +12,7 @@ import { swaggerDocs, swaggerUi } from './config/swagger.js'
 import userRoutes from './routes/userRoutes.js'
 import taskRoutes from './routes/taskRoutes.js'
 import questRoutes from './routes/questRoutes.js'
+import cookieParser from 'cookie-parser'
 
 /* Configurations */
 const __filename = fileURLToPath(import.meta.url)
@@ -36,14 +37,14 @@ app.use(
         callback(new Error('Not allowed by CORS'))
       }
     },
+    credentials: true,
   }),
 )
-
+app.use(cookieParser())
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
 app.use('/api/users', userRoutes)
 app.use('/api/tasks', taskRoutes)
 app.use('/api/quests', questRoutes)
-
 app.use('/assets', express.static(path.resolve(__dirname, 'public/assets')))
 
 /* Create HTTP Server */

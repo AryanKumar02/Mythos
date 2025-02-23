@@ -3,6 +3,7 @@ import {
   createQuestsFromTasks,
   getQuestsByUser,
   completeQuest,
+  deleteQuest,
 } from '../controllers/questController.js'
 import protect from '../middlewares/authMiddleware.js'
 
@@ -120,12 +121,10 @@ router.get('/', protect, getQuestsByUser)
  *         required: true
  *         schema:
  *           type: string
- *         description: The ID of the quest to mark as complete
+ *         description: "The ID of the quest to mark as complete"
  *     responses:
  *       200:
- *         description: |
- *           The updated quest and streak data. Note:
- *           - The streak is only updated after completing 3 quests in a single day.
+ *         description: "The updated quest and streak data. Note: The streak is only updated after completing 3 quests in a single day."
  *         content:
  *           application/json:
  *             schema:
@@ -137,12 +136,46 @@ router.get('/', protect, getQuestsByUser)
  *                   $ref: '#/components/schemas/Quest'
  *                 streak:
  *                   type: number
- *                   description: The user's current streak
+ *                   description: "The user's current streak"
  *       404:
  *         description: Quest not found
  *       500:
  *         description: Internal server error
  */
 router.patch('/:questId/complete', protect, completeQuest)
+
+/**
+ * @swagger
+ * /quests/{questId}:
+ *   delete:
+ *     summary: Delete a quest
+ *     tags: [Quests]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: questId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the quest to delete
+ *     responses:
+ *       200:
+ *         description: Quest deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 quest:
+ *                   $ref: '#/components/schemas/Quest'
+ *       404:
+ *         description: Quest not found
+ *       500:
+ *         description: Internal server error
+ */
+router.delete('/:questId', protect, deleteQuest)
 
 export default router

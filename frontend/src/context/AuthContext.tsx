@@ -31,7 +31,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // On mount, load token and user from localStorage.
+  // Persist authentication state: on mount, load token and user from localStorage.
   useEffect(() => {
     const storedToken = localStorage.getItem("authToken");
     const storedUser = localStorage.getItem("user");
@@ -150,7 +150,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       const authToken = localStorage.getItem("authToken");
       const response = await fetch("http://localhost:3001/api/users/update-avatar", {
-        method: "PUT", // using PUT as per your route
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json",

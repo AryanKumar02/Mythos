@@ -223,3 +223,25 @@ function parseAndValidateQuestJSON(rawJSON) {
 
   return data
 }
+
+export const deleteQuest = async (req, res) => {
+  try {
+    // Find and delete the quest for the authenticated user
+    const quest = await Quest.findOneAndDelete({
+      _id: req.params.questId,
+      user: req.user.id,
+    })
+
+    if (!quest) {
+      return res.status(404).json({ error: 'Quest not found' })
+    }
+
+    // Optionally, emit an event for real-time updates
+    io.to(req.user.id).emit('questDeleted', { questId: req.params.questId })
+
+    res.json({ message: 'Quest deleted successfully', quest })
+  } catch (error) {
+    console.error('Quest deletion error:', error)
+    res.status(500).json({ error: 'Failed to delete quest' })
+  }
+}

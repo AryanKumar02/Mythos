@@ -59,7 +59,9 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
     <nav className="bg-transparent py-5">
       <div className="container mx-auto grid grid-cols-3 items-center">
         {/* Left: Brand */}
-        <div className="text-4xl font-bold text-white">Mythos</div>
+        <div className="text-4xl font-semibold text-white">
+          <Link to="/dashboard">Mythos</Link>
+        </div>
         {/* Center: Navigation Links */}
         <div className="flex justify-center space-x-8">
           {navItems.map((item) => (

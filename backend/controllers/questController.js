@@ -13,7 +13,7 @@ import {
 const SYSTEM_MESSAGE = {
   role: 'system',
   content:
-    'Generate fantasy RPG quests from real-life tasks. Respond with valid JSON: {questTitle: string, questDescription: string, xp: number}',
+    'Generate fantasy RPG quests from real-life tasks. Give me a random xp number between 0 - 150. Respond with valid JSON: {questTitle: string, questDescription: string, xp: number}',
 }
 
 export const createQuestsFromTasks = async (req, res) => {

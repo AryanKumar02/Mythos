@@ -2,14 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import Card from './ui/Card';
-import ArrowIcon from './icons/ArrowIcon';
-import PlayIcon from './icons/PlayIcon';
-import PauseIcon from './icons/PauseIcon';
 
 export interface CarouselItem {
   id: string;
   title: string;
   description: string;
+  xp?: number;
 }
 
 interface CarouselProps {
@@ -18,101 +16,166 @@ interface CarouselProps {
 }
 
 const Carousel: React.FC<CarouselProps> = ({ items, autoSlideInterval = 3000 }) => {
-  const originalCount = items.length;
-  const renderedItems = items;
-  const total = originalCount;
+  // Define the CTA card.
+  const ctaCard: CarouselItem = {
+    id: 'cta',
+    title: 'Start a New Quest!',
+    description: 'Complete tasks to unlock new quests or click here to create one!',
+  };
 
+  // Compute render mode:
+  // - 'staticCTA': no quests => show CTA only.
+  // - 'staticTwo': exactly one quest => show quest and CTA statically.
+  // - 'carousel': two or more quests => use carousel logic.
+  const renderMode =
+    items.length === 0 ? 'staticCTA' : items.length === 1 ? 'staticTwo' : 'carousel';
+  console.log("Carousel renderMode:", renderMode);
+
+  // Compute displayedItems based on renderMode.
+  let displayedItems: CarouselItem[] = [];
+  if (renderMode === 'staticCTA') {
+    displayedItems = [ctaCard];
+  } else if (renderMode === 'staticTwo') {
+    // When exactly one quest, add the CTA card with isCTA flag.
+    displayedItems = [...items, ctaCard];
+  } else {
+    // For carousel mode, if items are fewer than 3, append CTA; otherwise, take first 3.
+    displayedItems = items.length < 3 ? [...items, ctaCard] : items.slice(0, 3);
+  }
+  console.log("Displayed items:", displayedItems);
+
+  // Always call hooks at the top.
   const controls = useAnimation();
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isAutoScrolling, setIsAutoScrolling] = useState(true);
+  const total = displayedItems.length;
 
-  // Constants for layout
-  const cardWidth = 300; // each card's width (px)
-  const gap = 16; // gap between cards (px)
-  // Visible area: shows 3 cards side by side
+  // Layout constants.
+  const cardWidth = 300;
+  const cardHeight = 256;
+  const gap = 16;
   const visibleWidth = cardWidth * 3 + gap * 2;
 
-  // Calculate offset to center the active card.
-  // Formula: activeIndex * (cardWidth + gap) - ((visibleWidth - cardWidth) / 2)
-  const offset = activeIndex * (cardWidth + gap) - ((visibleWidth - cardWidth) / 2);
-
-  // Auto-slide: every autoSlideInterval, increment activeIndex if auto-scrolling is enabled.
+  // Auto-slide effect (only in carousel mode).
   useEffect(() => {
-    if (!isAutoScrolling) return;
+    if (renderMode !== 'carousel') {
+      console.log("Skipping auto-slide because renderMode is not 'carousel'.");
+      return;
+    }
     const timer = setInterval(() => {
       setActiveIndex(prev => (prev === total - 1 ? 0 : prev + 1));
     }, autoSlideInterval);
-    return () => clearInterval(timer);
-  }, [total, autoSlideInterval, isAutoScrolling]);
+    console.log("Auto-slide timer started with interval:", autoSlideInterval);
+    return () => {
+      clearInterval(timer);
+      console.log("Auto-slide timer cleared.");
+    };
+  }, [renderMode, total, autoSlideInterval]);
 
-  // Animate x offset whenever activeIndex changes.
+  // Calculate offset for centering the active card.
+  const offset = activeIndex * (cardWidth + gap) - ((visibleWidth - cardWidth) / 2);
+  console.log("Active index:", activeIndex, "Offset:", offset);
+
+  // Animate the carousel (only in carousel mode).
   useEffect(() => {
+    if (renderMode !== 'carousel') {
+      console.log("Skipping carousel animation because renderMode is not 'carousel'.");
+      return;
+    }
     controls.start({
       x: -offset,
-      transition: { type: 'tween', duration: 0.5 }
+      transition: { type: 'tween', duration: 0.5 },
     });
-  }, [activeIndex, offset, controls]);
+    console.log("Animating carousel to offset:", offset);
+  }, [renderMode, activeIndex, offset, controls]);
 
-  // Manual navigation functions:
-  const prevSlide = () => {
-    setActiveIndex(prev => (prev === 0 ? total - 1 : prev - 1));
+  const goToSlide = (index: number) => {
+    console.log("Dot clicked, going to slide:", index);
+    setActiveIndex(index);
   };
 
-  const nextSlide = () => {
-    setActiveIndex(prev => (prev === total - 1 ? 0 : prev + 1));
-  };
-
-  // Toggle auto-scroll play/pause
-  const toggleAutoScroll = () => {
-    setIsAutoScrolling(prev => !prev);
-  };
-
-  return (
-    <div className="mt-8" style={{ width: visibleWidth }}>
-      <div className="overflow-hidden">
-        <motion.div
-          className="flex"
-          style={{ gap: `${gap}px` }}
-          animate={controls}
-          transition={{ type: 'tween', duration: 0.5 }}
-        >
-          {renderedItems.map((item, index) => (
-            <div key={index} style={{ minWidth: `${cardWidth}px` }}>
-              <Card
-                title={item.title}
-                description={item.description}
-                // Only the active (center) card is fully opaque.
-                faded={ index !== activeIndex }
-              />
-            </div>
+  // Conditional rendering based on renderMode.
+  if (renderMode === 'staticCTA') {
+    // Only CTA card.
+    return (
+      <div className="flex justify-center items-center mt-8 mx-auto" style={{ width: cardWidth }}>
+        <Card
+          title={ctaCard.title}
+          description={ctaCard.description}
+          faded={false}
+          isCTA={true}
+        />
+      </div>
+    );
+  } else if (renderMode === 'staticTwo') {
+    // Exactly one quest: render the quest and CTA side by side with a gap.
+    return (
+      <div
+        className="flex justify-center items-center mt-8 mx-auto"
+        style={{ width: cardWidth * 2 + gap, gap: `${gap}px` }}
+      >
+        <div style={{ width: cardWidth, height: cardHeight }}>
+          <Card
+            title={items[0].title}
+            description={items[0].description}
+            xp={items[0].xp}
+            faded={false}
+          />
+        </div>
+        <div style={{ width: cardWidth, height: cardHeight }}>
+          <Card
+            title={ctaCard.title}
+            description={ctaCard.description}
+            faded={false}
+            isCTA={true}
+          />
+        </div>
+      </div>
+    );
+  } else {
+    // Carousel mode: render the animated carousel with dot navigation.
+    return (
+      <div className="mt-8 mx-auto" style={{ width: visibleWidth }}>
+        <div className="overflow-hidden">
+          <motion.div
+            className="flex items-start"
+            style={{ gap: `${gap}px` }}
+            animate={controls}
+            transition={{ type: 'tween', duration: 0.5 }}
+          >
+            {displayedItems.map((item, index) => (
+              <div key={`${item.id}-${index}`} style={{ minWidth: `${cardWidth}px`, height: `${cardHeight}px` }}>
+                <Card
+                  title={item.title}
+                  description={item.description}
+                  xp={item.xp}
+                  faded={index !== activeIndex}
+                  isCTA={item.id === 'cta'}
+                />
+              </div>
+            ))}
+          </motion.div>
+        </div>
+        <div className="flex justify-center mt-4">
+          {displayedItems.map((_, index) => (
+            <button
+              key={`dot-${index}`}
+              onClick={() => goToSlide(index)}
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                margin: '0 4px',
+                border: 'none',
+                backgroundColor: index === activeIndex ? '#4A90E2' : '#fff',
+                cursor: 'pointer',
+              }}
+              aria-label={`Go to slide ${index + 1}`}
+            />
           ))}
-        </motion.div>
+        </div>
       </div>
-      {/* Navigation buttons placed right next to each other */}
-      <div className="flex justify-center items-center mt-4">
-        <button
-          onClick={prevSlide}
-          className="w-10 h-10 flex justify-center items-center text-white focus:outline-none"
-        >
-          {/* Left arrow: rotate the icon 180 degrees */}
-          <ArrowIcon rotate={180} />
-        </button>
-        <button
-          onClick={toggleAutoScroll}
-          className="w-10 h-10 flex justify-center items-center text-white focus:outline-none"
-        >
-          {isAutoScrolling ? <PauseIcon /> : <PlayIcon />}
-        </button>
-        <button
-          onClick={nextSlide}
-          className="w-10 h-10 flex justify-center items-center text-white focus:outline-none"
-        >
-          {/* Right arrow: default rotation */}
-          <ArrowIcon />
-        </button>
-      </div>
-    </div>
-  );
+    );
+  }
 };
 
 export default Carousel;

@@ -1,14 +1,21 @@
+// src/components/ui/Button.tsx
 import React from "react";
 
 interface ButtonProps {
-  text: string;
-  onClick: () => void;
+  text?: string; // now optional
+  onClick?: () => void; // now optional
   className?: string;
   textColor?: string;
   children?: React.ReactNode;
 }
 
-const Button: React.FC<ButtonProps> = ({ text, children, onClick, className = "", textColor = "text-white" }) => {
+const Button: React.FC<ButtonProps> = ({
+  text,
+  children,
+  onClick,
+  className = "",
+  textColor = "text-white",
+}) => {
   return (
     <button
       onClick={onClick}

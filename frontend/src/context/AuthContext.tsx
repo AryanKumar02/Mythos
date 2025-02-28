@@ -163,8 +163,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (!response.ok) {
         throw new Error(data.error || "Failed to update avatar");
       }
-      // Merge the new avatarUrl into the current user object
-      // Assuming data.avatarUrl is the new avatar URL returned from the backend.
+
+      // Update the user's avatarUrl in state and localStorage
       const updatedUser: User = { ...user!, avatarUrl: data.avatarUrl };
       updateUserProfile(updatedUser);
       return updatedUser;

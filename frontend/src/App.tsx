@@ -1,6 +1,7 @@
-import React from 'react';
+// src/App.tsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { TaskQuestProvider } from "./context/TaskQuestContext";
 import Splash from "./pages/Splash";
 import TermsPage from "./pages/Terms";
 import Dashboard from "./pages/Dashboard";
@@ -17,7 +18,15 @@ function App() {
 
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Dashboard />} />
+            {/* Wrap your protected pages with TaskQuestProvider */}
+            <Route
+              path="/dashboard"
+              element={
+                <TaskQuestProvider>
+                  <Dashboard />
+                </TaskQuestProvider>
+              }
+            />
           </Route>
         </Routes>
       </Router>

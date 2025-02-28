@@ -60,8 +60,8 @@ const io = new Server(server, {
 // Handle Socket.IO connections
 io.on('connection', (socket) => {
   // Example: Listening for a custom event
-  // eslint-disable-next-line no-unused-vars
-  socket.on('customEvent', (data) => {})
+
+  socket.on('customEvent', () => {})
 
   // Handle disconnection
   socket.on('disconnect', () => {

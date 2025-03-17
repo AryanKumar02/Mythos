@@ -15,12 +15,12 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: 'http://localhost:3001/api', // Replace with your base URL
+        url: 'http://localhost:3001/api',
         description: 'Development server',
       },
     ],
   },
-  apis: ['/Users/aryan/Project-RPG/backend/routes/*.js'], // Correct path for all .js files in the routes folder
+  apis: ['/Users/aryan/Project-RPG/backend/routes/*.js'],
 }
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions)

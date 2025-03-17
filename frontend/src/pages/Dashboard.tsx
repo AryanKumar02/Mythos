@@ -12,7 +12,6 @@ const Dashboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Check avatar on mount/update and handle loading state.
   useEffect(() => {
     if (user && (!user.avatarUrl || user.avatarUrl === '/assets/avatars/default.svg')) {
       setIsModalOpen(true);
@@ -20,36 +19,37 @@ const Dashboard: React.FC = () => {
     setIsLoading(false);
   }, [user]);
 
-  // Log quests whenever they change (optional for debugging).
   useEffect(() => {
     console.log("Quests from TaskQuestContext:", quests);
   }, [quests]);
 
-  // Memoize the carousel items to avoid unnecessary recalculations.
-  const carouselItems: CarouselItem[] = useMemo(() =>
-    Array.isArray(quests)
-      ? quests.map((quest) => ({
-          id: quest._id,
-          title: quest.questTitle || "No Title",
-          description: quest.questDescription || "",
-          xp: quest.xpReward,
-        }))
-      : [],
+  const carouselItems: CarouselItem[] = useMemo(
+    () =>
+      Array.isArray(quests)
+        ? quests.map((quest) => ({
+            id: quest._id,
+            title: quest.questTitle || "No Title",
+            description: quest.questDescription || "",
+            xp: quest.xpReward,
+          }))
+        : [],
     [quests]
   );
 
-  // Memoize the handler to prevent unnecessary re-renders.
-  const handleAvatarSelect = useCallback(async (selectedSeed: string) => {
-    if (user) {
-      try {
-        await updateAvatar(selectedSeed);
-        console.log("Avatar updated successfully.");
-      } catch (err) {
-        console.error("Failed to update avatar on backend:", err);
+  const handleAvatarSelect = useCallback(
+    async (selectedSeed: string) => {
+      if (user) {
+        try {
+          await updateAvatar(selectedSeed);
+          console.log("Avatar updated successfully.");
+        } catch (err) {
+          console.error("Failed to update avatar on backend:", err);
+        }
       }
-    }
-    setIsModalOpen(false);
-  }, [user, updateAvatar]);
+      setIsModalOpen(false);
+    },
+    [user, updateAvatar]
+  );
 
   if (isLoading) {
     return <div>Loading...</div>;

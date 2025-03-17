@@ -1,7 +1,5 @@
-// frontend/src/context/AuthContext.tsx
 import React, { createContext, useState, useContext, ReactNode, useEffect } from "react";
 
-// Extend your user interface to include an optional avatarUrl.
 export interface User {
   id: string;
   username: string;
@@ -9,7 +7,6 @@ export interface User {
   avatarUrl?: string;
 }
 
-// Define the context type, including functions to update the profile.
 interface AuthContextType {
   user: User | null;
   token: string | null;
@@ -31,7 +28,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Persist authentication state: on mount, load token and user from localStorage.
   useEffect(() => {
     const storedToken = localStorage.getItem("authToken");
     const storedUser = localStorage.getItem("user");
@@ -65,7 +61,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json",
+          Accept: "application/json",
         },
         body: JSON.stringify({ email, password }),
       });
@@ -76,7 +72,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setError(data.error || "Login failed");
         throw new Error(data.error || "Login failed");
       }
-      // Use data.user if available; otherwise, assume data is the user object.
       const userToStore: User = data.user ? data.user : data;
       if (data.token) {
         localStorage.setItem("authToken", data.token);
@@ -101,7 +96,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json",
+          Accept: "application/json",
         },
         body: JSON.stringify({ username, email, password }),
       });
@@ -138,14 +133,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     console.log("User logged out");
   };
 
-  // updateUserProfile updates the user in state and localStorage.
   const updateUserProfile = (updatedUser: User) => {
     setUser(updatedUser);
     localStorage.setItem("user", JSON.stringify(updatedUser));
   };
 
-  // updateAvatar sends a PUT request to the update-avatar endpoint.
-  // It sends { avatarSeed } in the body, and expects the backend to update the user's avatarSeed.
   const updateAvatar = async (avatarSeed: string): Promise<User> => {
     try {
       const authToken = localStorage.getItem("authToken");
@@ -153,8 +145,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json",
-          "Authorization": `Bearer ${authToken}`,
+          Accept: "application/json",
+          Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({ avatarSeed }),
       });
@@ -163,8 +155,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (!response.ok) {
         throw new Error(data.error || "Failed to update avatar");
       }
-
-      // Update the user's avatarUrl in state and localStorage
       const updatedUser: User = { ...user!, avatarUrl: data.avatarUrl };
       updateUserProfile(updatedUser);
       return updatedUser;

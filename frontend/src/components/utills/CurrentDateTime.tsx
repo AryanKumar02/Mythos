@@ -3,13 +3,12 @@ import React, { useEffect, useState } from 'react';
 const CurrentDateTime: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
 
-  // Update currentTime every second
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 1000); // updates every 1 second
+    }, 1000);
 
-    return () => clearInterval(timer); // cleanup on unmount
+    return () => clearInterval(timer);
   }, []);
 
   const getOrdinalSuffix = (day: number): string => {
@@ -26,7 +25,6 @@ const CurrentDateTime: React.FC = () => {
     const weekday = date.toLocaleDateString('en-US', { weekday: 'long' });
     const day = date.getDate();
     const month = date.toLocaleDateString('en-US', { month: 'long' });
-    // Format time in 24-hour format (HH:MM)
     const time = date.toLocaleTimeString('en-GB', {
       hour: '2-digit',
       minute: '2-digit',

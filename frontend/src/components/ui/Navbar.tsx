@@ -8,15 +8,15 @@ interface NavbarProps {
 }
 
 interface NavItem {
-  name: string; // used to compare with currentPage
-  label: string; // text displayed on the link
+  name: string;
+  label: string;
   route: string;
 }
 
 const navItems: NavItem[] = [
   { name: 'Dashboard', label: 'Home', route: '/dashboard' },
   { name: 'Adventure', label: 'Adventure', route: '/adventure' },
-  { name: 'Rewards', label: 'Rewards', route: '/rewards' },
+  { name: 'Codex', label: 'Codex', route: '/codex' },
 ];
 
 const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
@@ -25,7 +25,6 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside the container.
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -36,11 +35,9 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () =>
-      document.removeEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Optional: close dropdown on scroll
   useEffect(() => {
     const handleScroll = () => {
       setDropdownOpen(false);
@@ -57,12 +54,10 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
 
   return (
     <nav className="bg-transparent py-5">
-      <div className="container mx-auto grid grid-cols-3 items-center">
-        {/* Left: Brand */}
-        <div className="text-4xl font-semibold text-white">
+      <div className="w-full grid grid-cols-3 items-center px-8">
+        <div className="text-4xl font-semibold text-white text-left">
           <Link to="/dashboard">Mythos</Link>
         </div>
-        {/* Center: Navigation Links */}
         <div className="flex justify-center space-x-8">
           {navItems.map((item) => (
             <Link
@@ -83,7 +78,6 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
             </Link>
           ))}
         </div>
-        {/* Right: Avatar with Dropdown on Click */}
         <div className="flex justify-end relative" ref={dropdownRef}>
           {user && user.avatarUrl ? (
             <img

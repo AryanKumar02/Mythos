@@ -2,8 +2,8 @@
 import React from "react";
 
 interface ButtonProps {
-  text?: string; // now optional
-  onClick?: () => void; // now optional
+  text?: string; 
+  onClick?: () => void;
   className?: string;
   textColor?: string;
   children?: React.ReactNode;

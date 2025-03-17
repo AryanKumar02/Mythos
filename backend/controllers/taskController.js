@@ -1,14 +1,14 @@
 import Task from '../models/task.js'
+import Quest from '../models/Quest.js'
+import openai from '../config/openai.js'
 import { io } from '../index.js'
 
-// Helper function for checking task ownership
 const checkTaskOwnership = async (taskId, userId) => {
   const task = await Task.findById(taskId)
   if (!task) {
     throw new Error('Task not found')
   }
   if (!task.user.equals(userId)) {
-    // More efficient ObjectId comparison
     if (task.user.toString() !== userId.toString()) {
       throw new Error('Access denied')
     }
@@ -16,7 +16,72 @@ const checkTaskOwnership = async (taskId, userId) => {
   }
 }
 
-// Create a new task
+const SYSTEM_MESSAGE = {
+  role: 'system',
+  content:
+    'Generate fantasy RPG quests from real-life tasks. Give me a random xp number between 0 - 150. Respond with valid JSON: {questTitle: string, questDescription: string, xp: number}',
+}
+
+function parseAndValidateQuestJSON(rawJSON) {
+  const jsonString = rawJSON
+    .replace(/```json/g, '')
+    .replace(/```/g, '')
+    .trim()
+  const data = JSON.parse(jsonString)
+  if (
+    !data.questTitle ||
+    !data.questDescription ||
+    typeof data.xp !== 'number'
+  ) {
+    throw new Error('Invalid quest format from OpenAI')
+  }
+  return data
+}
+
+export const createTaskAndQuest = async (req, res) => {
+  try {
+    const task = new Task({
+      ...req.body,
+      user: req.user.id,
+    })
+    const savedTask = await task.save()
+
+    io.to(req.user.id).emit('taskCreated', {
+      message: `Task "${savedTask.title}" has been created successfully.`,
+      task: savedTask,
+    })
+
+    const prompt = `Create a unique, creative and concise RPG quest for: ${savedTask.title} - ${savedTask.description}`
+    const response = await openai.chat.completions.create({
+      model: process.env.OPENAI_MODEL || 'gpt-4',
+      messages: [SYSTEM_MESSAGE, { role: 'user', content: prompt }],
+      max_tokens: parseFloat(process.env.OPENAI_MAX_TOKENS),
+      temperature: parseFloat(process.env.OPENAI_TEMPERATURE),
+    })
+    const rawJSON = response.choices[0].message.content
+    const questData = parseAndValidateQuestJSON(rawJSON)
+
+    const quest = new Quest({
+      user: req.user.id,
+      originalTask: savedTask._id,
+      ...questData,
+      isComplete: false,
+      xpReward: Math.min(Math.max(questData.xp, 10), 50),
+    })
+    const savedQuest = await quest.save()
+
+    io.to(req.user.id).emit('questCreated', { quest: savedQuest })
+
+    res.status(201).json({ task: savedTask, quest: savedQuest })
+  } catch (error) {
+    console.error('Error creating task/quest:', error.message)
+    res.status(500).json({
+      error: 'Failed to create task and quest',
+      details: error.message,
+    })
+  }
+}
+
 export const createTask = async (req, res) => {
   try {
     const task = new Task({
@@ -39,16 +104,14 @@ export const createTask = async (req, res) => {
   }
 }
 
-// Get all tasks for the logged-in user
 export const getTasks = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1
     const limit = parseInt(req.query.limit) || 10
     const skip = (page - 1) * limit
 
-    // Parallel execution for better performance
     const [tasks, totalTasks] = await Promise.all([
-      Task.find({ user: req.user.id }).skip(skip).limit(limit).lean(), // Faster read-only response
+      Task.find({ user: req.user.id }).skip(skip).limit(limit).lean(),
       Task.countDocuments({ user: req.user.id }),
     ])
 
@@ -66,7 +129,6 @@ export const getTasks = async (req, res) => {
   }
 }
 
-// Get a single task by ID
 export const getTaskById = async (req, res) => {
   try {
     const task = await checkTaskOwnership(req.params.id, req.user.id)
@@ -88,7 +150,6 @@ export const getTaskById = async (req, res) => {
   }
 }
 
-// Update a task
 export const updateTask = async (req, res) => {
   try {
     const task = await checkTaskOwnership(req.params.id, req.user._id)
@@ -109,11 +170,10 @@ export const updateTask = async (req, res) => {
   }
 }
 
-// Delete a task
 export const deleteTask = async (req, res) => {
   try {
     const task = await checkTaskOwnership(req.params.id, req.user.id)
-    await task.deleteOne() // More efficient deletion using existing document
+    await task.deleteOne()
     res.status(200).json({ message: 'Task deleted successfully' })
   } catch (error) {
     const statusCode =

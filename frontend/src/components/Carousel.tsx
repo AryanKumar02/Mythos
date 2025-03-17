@@ -1,4 +1,3 @@
-// src/components/Carousel.tsx
 import React, { useState, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import Card from './ui/Card';
@@ -8,54 +7,51 @@ export interface CarouselItem {
   title: string;
   description: string;
   xp?: number;
+  createdAt?: string | Date;
 }
 
 interface CarouselProps {
   items: CarouselItem[];
-  autoSlideInterval?: number; // in milliseconds
+  autoSlideInterval?: number;
 }
 
 const Carousel: React.FC<CarouselProps> = ({ items, autoSlideInterval = 3000 }) => {
-  // Define the CTA card.
   const ctaCard: CarouselItem = {
     id: 'cta',
     title: 'Start a New Quest!',
     description: 'Complete tasks to unlock new quests or click here to create one!',
   };
 
-  // Compute render mode:
-  // - 'staticCTA': no quests => show CTA only.
-  // - 'staticTwo': exactly one quest => show quest and CTA statically.
-  // - 'carousel': two or more quests => use carousel logic.
   const renderMode =
     items.length === 0 ? 'staticCTA' : items.length === 1 ? 'staticTwo' : 'carousel';
   console.log("Carousel renderMode:", renderMode);
 
-  // Compute displayedItems based on renderMode.
   let displayedItems: CarouselItem[] = [];
   if (renderMode === 'staticCTA') {
     displayedItems = [ctaCard];
   } else if (renderMode === 'staticTwo') {
-    // When exactly one quest, add the CTA card with isCTA flag.
     displayedItems = [...items, ctaCard];
   } else {
-    // For carousel mode, if items are fewer than 3, append CTA; otherwise, take first 3.
-    displayedItems = items.length < 3 ? [...items, ctaCard] : items.slice(0, 3);
+    if (items.length < 3) {
+      displayedItems = [...items, ctaCard];
+    } else {
+      const sortedItems = [...items].sort(
+        (a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
+      );
+      displayedItems = sortedItems.slice(0, 3);
+    }
   }
   console.log("Displayed items:", displayedItems);
 
-  // Always call hooks at the top.
   const controls = useAnimation();
   const [activeIndex, setActiveIndex] = useState(0);
   const total = displayedItems.length;
 
-  // Layout constants.
   const cardWidth = 300;
   const cardHeight = 256;
   const gap = 16;
   const visibleWidth = cardWidth * 3 + gap * 2;
 
-  // Auto-slide effect (only in carousel mode).
   useEffect(() => {
     if (renderMode !== 'carousel') {
       console.log("Skipping auto-slide because renderMode is not 'carousel'.");
@@ -71,11 +67,9 @@ const Carousel: React.FC<CarouselProps> = ({ items, autoSlideInterval = 3000 }) 
     };
   }, [renderMode, total, autoSlideInterval]);
 
-  // Calculate offset for centering the active card.
   const offset = activeIndex * (cardWidth + gap) - ((visibleWidth - cardWidth) / 2);
   console.log("Active index:", activeIndex, "Offset:", offset);
 
-  // Animate the carousel (only in carousel mode).
   useEffect(() => {
     if (renderMode !== 'carousel') {
       console.log("Skipping carousel animation because renderMode is not 'carousel'.");
@@ -93,9 +87,7 @@ const Carousel: React.FC<CarouselProps> = ({ items, autoSlideInterval = 3000 }) 
     setActiveIndex(index);
   };
 
-  // Conditional rendering based on renderMode.
   if (renderMode === 'staticCTA') {
-    // Only CTA card.
     return (
       <div className="flex justify-center items-center mt-8 mx-auto" style={{ width: cardWidth }}>
         <Card
@@ -107,7 +99,6 @@ const Carousel: React.FC<CarouselProps> = ({ items, autoSlideInterval = 3000 }) 
       </div>
     );
   } else if (renderMode === 'staticTwo') {
-    // Exactly one quest: render the quest and CTA side by side with a gap.
     return (
       <div
         className="flex justify-center items-center mt-8 mx-auto"
@@ -132,7 +123,6 @@ const Carousel: React.FC<CarouselProps> = ({ items, autoSlideInterval = 3000 }) 
       </div>
     );
   } else {
-    // Carousel mode: render the animated carousel with dot navigation.
     return (
       <div className="mt-8 mx-auto" style={{ width: visibleWidth }}>
         <div className="overflow-hidden">

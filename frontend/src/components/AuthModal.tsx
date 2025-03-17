@@ -1,14 +1,14 @@
 import { motion } from "framer-motion";
 import { useState, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // Adjust the path if needed
+import { useAuth } from "../context/AuthContext";
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-// Updated container styles: using left alignment (flex-start) and added padding
+
 const containerStyles: React.CSSProperties = {
   width: "443px",
   backgroundColor: "#524456",
@@ -17,35 +17,33 @@ const containerStyles: React.CSSProperties = {
   color: "white",
   display: "flex",
   flexDirection: "column",
-  alignItems: "flex-start", // left align content
+  alignItems: "flex-start",
   justifyContent: "center",
-  padding: "32px", // sufficient whitespace on all sides
+  padding: "32px",
   willChange: "transform, opacity",
   transform: "translateZ(0)",
   backfaceVisibility: "hidden",
-  position: "relative" // for proper placement of the close button
+  position: "relative"
 };
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
-  // Modes: "signIn" or "signUp"
+
   const [mode, setMode] = useState<"signIn" | "signUp">("signIn");
 
-  // Common fields
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // Fields for sign up only
+
   const [username, setUsername] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [termsChecked, setTermsChecked] = useState(false);
 
-  // For showing password requirements (only for sign up)
   const [passwordFocused, setPasswordFocused] = useState(false);
 
   const navigate = useNavigate();
   const { signIn, signUp, error, clearError } = useAuth();
 
-  // Memoize password requirements for sign up
+
   const requirements = useMemo(() => ({
     minLength: password.length >= 8,
     uppercase: /[A-Z]/.test(password),
@@ -54,7 +52,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
   }), [password]);
 
-  // Memoize overall sign up validity
+
   const isSignUpValid = useMemo(() => (
     email.trim() !== "" &&
     password !== "" &&
@@ -68,7 +66,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     termsChecked
   ), [email, password, confirmPassword, requirements, termsChecked]);
 
-  // Sign In handler using Auth Context
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     clearError();
@@ -81,7 +78,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  // Sign Up handler using Auth Context
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     clearError();
@@ -98,7 +94,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    // Full-screen overlay container
+    
     <div className="fixed inset-0 flex items-center justify-center p-8">
       <motion.div
         style={containerStyles}

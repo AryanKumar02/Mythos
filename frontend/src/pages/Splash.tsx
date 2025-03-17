@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Button from "../components/ui/Button";
@@ -6,7 +5,6 @@ import Stars from "../components/animations/Stars";
 import ShootingStars from "../components/animations/ShootingStars";
 import AuthModal from "../components/AuthModal";
 
-// Glow effect configurations for title and subtitle
 const TITLE_TEXT_SHADOW = [
   "0px 0px 12px rgba(255,255,255,0.6)",
   "0px 0px 22px rgba(255,255,255,1)",
@@ -37,9 +35,6 @@ const SUBTITLE_TRANSITION = {
   ease: "easeInOut",
 };
 
-/**
- * Represents the Splash component functionality.
- */
 const Splash = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
@@ -56,13 +51,11 @@ const Splash = () => {
       className="relative flex flex-col items-center justify-center h-screen w-full bg-cover bg-center bg-no-repeat"
       style={{ backgroundImage: "url('/assets/splash-bg.jpg')" }}
     >
-      {/* Background Animations */}
       <div className="absolute inset-0 z-0">
         <Stars />
         <ShootingStars />
       </div>
 
-      {/* Animate the Title & Subtitle block */}
       <AnimatePresence>
         {!isAuthModalOpen && (
           <motion.div
@@ -91,7 +84,6 @@ const Splash = () => {
         )}
       </AnimatePresence>
 
-      {/* Button: appears when modal is closed */}
       {!isAuthModalOpen && (
         <div className="absolute top-[60%] transform -translate-y-1/2 z-10">
           <Button
@@ -102,7 +94,6 @@ const Splash = () => {
         </div>
       )}
 
-      {/* Modal: smoothly appears and disappears */}
       <AnimatePresence>
         {isAuthModalOpen && (
           <motion.div
@@ -113,10 +104,7 @@ const Splash = () => {
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
           >
-            <AuthModal
-              isOpen={isAuthModalOpen}
-              onClose={handleCloseModal}
-            />
+            <AuthModal isOpen={isAuthModalOpen} onClose={handleCloseModal} />
           </motion.div>
         )}
       </AnimatePresence>

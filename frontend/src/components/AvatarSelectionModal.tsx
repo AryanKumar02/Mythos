@@ -1,7 +1,7 @@
 // frontend/src/components/AvatarSelectionModal.tsx
 import React, { useState } from "react";
 import Modal from "./ui/Modal";
-import Button from "./ui/Button"; // Adjust the path if needed
+import Button from "./ui/Button";
 
 interface AvatarSelectionModalProps {
   isOpen: boolean;
@@ -9,7 +9,6 @@ interface AvatarSelectionModalProps {
   onAvatarSelect: (avatarUrl: string) => void;
 }
 
-// List of preselected avatar filenames
 const availableAvatars = [
   "avatar1.svg",
   "avatar2.svg",
@@ -40,7 +39,7 @@ const AvatarSelectionModal: React.FC<AvatarSelectionModalProps> = ({
   onClose,
   onAvatarSelect,
 }) => {
-  const baseUrl = "/assets/avatars/"; // Assuming your avatars are stored here
+  const baseUrl = "/assets/avatars/"; 
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const handlePrev = () => {
@@ -113,7 +112,6 @@ const AvatarSelectionModal: React.FC<AvatarSelectionModalProps> = ({
             </svg>
           </button>
         </div>
-        {/* Confirm Button */}
         <div className="mt-6">
           <Button onClick={handleConfirm} text="Confirm" />
         </div>

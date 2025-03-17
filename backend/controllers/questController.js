@@ -9,7 +9,6 @@ import {
   formatPaginationResult,
 } from '../utills/paginationControl.js'
 
-// GPT-4 Turbo context window is 128k, keep system message concise
 const SYSTEM_MESSAGE = {
   role: 'system',
   content:
@@ -68,7 +67,7 @@ export const createQuestsFromTasks = async (req, res) => {
                 originalTask: task._id,
                 ...questData,
                 isComplete: false,
-                xpReward: Math.min(Math.max(questData.xp, 10), 50), // Clamp XP between 10-50
+                xpReward: Math.min(Math.max(questData.xp, 10), 150),
               },
             }
           } catch (error) {
@@ -111,7 +110,6 @@ export const createQuestsFromTasks = async (req, res) => {
 
 export const getQuestsByUser = async (req, res) => {
   try {
-    // Extract pagination parameters from the request query
     const { page, limit, skip } = getPaginationParams(req.query)
 
     // Retrieve quests for the user with pagination

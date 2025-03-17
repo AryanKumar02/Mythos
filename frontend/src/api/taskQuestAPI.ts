@@ -3,6 +3,13 @@ import { Task, Quest } from '../types/taskQuestTypes';
 
 const API_BASE = 'http://localhost:3001/api';
 
+export interface CompleteQuestResponse {
+  xp: number;
+  level: number;
+  streak: number;
+  quest: Quest;
+}
+
 const requireToken = (token: string | null): string => {
   if (!token) {
     throw new Error('Token is required for API calls');
@@ -61,7 +68,7 @@ export const updateTaskAPI = async (
 ): Promise<Task> => {
   const authToken = requireToken(token);
   const res = await fetch(`${API_BASE}/tasks/${taskId}`, {
-    method: 'PUT', // or PATCH, depending on your API
+    method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${authToken}`,
@@ -134,4 +141,42 @@ export const deleteQuestAPI = async (token: string | null, questId: string): Pro
   if (!res.ok) {
     throw new Error('Failed to delete quest: ' + res.statusText);
   }
+};
+
+export const completeQuestAPI = async (
+  token: string | null,
+  questId: string
+): Promise<CompleteQuestResponse> => {
+  const authToken = requireToken(token);
+  const res = await fetch(`${API_BASE}/quests/${questId}/complete`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${authToken}`,
+    },
+  });
+  if (!res.ok) {
+    throw new Error('Failed to complete quest: ' + res.statusText);
+  }
+  return await res.json();
+};
+
+
+export const createTaskAndQuestAPI = async (
+  token: string,
+  taskData: { title: string; description: string }
+) => {
+  const response = await fetch(`${API_BASE}/tasks/create-task-quest`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(taskData),
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to create quest');
+  }
+  return await response.json();
 };

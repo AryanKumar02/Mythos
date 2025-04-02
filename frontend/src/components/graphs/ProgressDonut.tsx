@@ -106,7 +106,7 @@ const ProgressDonut: React.FC<ProgressDonutProps> = ({ width, height }) => {
       .attr('fill', d => d.data.label === 'xpProgress' ? 'url(#xpGradient)' : '#333')
       .attr('d', outerArcGenerator({ startAngle: 0, endAngle: 0 } as d3.PieArcDatum<{ value: number; label: string }>))
       .attr('stroke-width', '2px')
-      .on('mouseover', function(event, d) {
+      .on('mouseover', function(event: MouseEvent, d: d3.PieArcDatum<{ value: number; label: string }>) {
          const tooltip = d3.select('body').append('div')
               .attr('class', 'd3-tooltip')
               .style('position', 'absolute')
@@ -121,7 +121,7 @@ const ProgressDonut: React.FC<ProgressDonutProps> = ({ width, height }) => {
               .transition()
               .duration(300)
               .style('opacity', 1);
-         d3.select(this).on('mousemove', function(event) {
+         d3.select(this).on('mousemove', function(event: MouseEvent) {
               tooltip.style('left', (event.pageX + 10) + 'px')
                      .style('top', (event.pageY - 28) + 'px');
          });
@@ -153,7 +153,7 @@ const ProgressDonut: React.FC<ProgressDonutProps> = ({ width, height }) => {
       .attr('fill', d => d.data.label === 'questProgress' ? 'url(#questGradient)' : '#333')
       .attr('d', innerArcGenerator({ startAngle: 0, endAngle: 0, padAngle: 0, value: 0, data: { value: 0, label: 'questProgress' }, index: 0 }))
       .attr('stroke-width', '2px')
-      .on('mouseover', function(event, d) {
+      .on('mouseover', function(event: MouseEvent, d: d3.PieArcDatum<{ value: number; label: string }>) {
           const tooltip = d3.select('body').append('div')
               .attr('class', 'd3-tooltip')
               .style('position', 'absolute')
@@ -168,7 +168,7 @@ const ProgressDonut: React.FC<ProgressDonutProps> = ({ width, height }) => {
               .transition()
               .duration(300)
               .style('opacity', 1);
-          d3.select(this).on('mousemove', function(event) {
+          d3.select(this).on('mousemove', function(event: MouseEvent) {
               tooltip.style('left', (event.pageX + 10) + 'px')
                      .style('top', (event.pageY - 28) + 'px');
           });

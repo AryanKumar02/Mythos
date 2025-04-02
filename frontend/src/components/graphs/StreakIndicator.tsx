@@ -14,7 +14,7 @@ const QuestStreakBar: React.FC<{ maxDays?: number }> = ({ maxDays = 7 }) => {
         <p className="text-yellow-300 text-3xl font-extrabold">{streak} / {maxDays} days</p>
       </div>
       <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
-        {Array.from({ length: maxDays }).map((_, i) => (
+        {Array.from({ length: maxDays }).map((_: unknown, i: number) => (
           <div key={i} className="w-px h-4 bg-white opacity-50" />
         ))}
       </div>

@@ -73,14 +73,14 @@ const PieChart: React.FC<PieChartProps> = ({
       .attr('fill', d => colorScale(d.data.label))
       .attr('stroke', '#fff')
       .attr('stroke-width', 3)
-      .on('mouseover', (event, d) => {
-        d3.select(event.currentTarget)
+      .on('mouseover', (event: MouseEvent, d: d3.PieArcDatum<PieChartData>) => {
+        d3.select(event.currentTarget as Element)
           .transition()
           .duration(300)
           .attr('d', arcHoverGenerator(d) as string);
       })
-      .on('mouseout', (event, d) => {
-        d3.select(event.currentTarget)
+      .on('mouseout', (event: MouseEvent, d: d3.PieArcDatum<PieChartData>) => {
+        d3.select(event.currentTarget as Element)
           .transition()
           .duration(300)
           .attr('d', arcGenerator(d) as string);
@@ -122,7 +122,7 @@ const PieChart: React.FC<PieChartProps> = ({
       .style('pointer-events', 'none')
       .style('opacity', 0);
 
-    arcs.on('mousemove', (event, d) => {
+    arcs.on('mousemove', (event: MouseEvent, d: d3.PieArcDatum<PieChartData>) => {
       tooltip
         .html(`<strong>${d.data.label}</strong>: ${d.data.value}`)
         .style('left', (event.pageX + 10) + 'px')

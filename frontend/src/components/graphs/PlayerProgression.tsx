@@ -286,7 +286,7 @@ const PlayerProgressionGraph: React.FC<PlayerProgressionGraphProps> = ({ width, 
       .style("pointer-events", "none")
       .style("opacity", 0);
 
-    circles.on('mouseover', (event, d) => {
+    circles.on('mouseover', (event: MouseEvent, d: ProgressData) => {
       tooltip.transition().duration(200).style("opacity", 0.9);
       tooltip.html(
         `<strong>Date:</strong> ${d3.timeFormat("%b %d, %Y")(d.date)}<br/>` +
@@ -304,7 +304,7 @@ const PlayerProgressionGraph: React.FC<PlayerProgressionGraphProps> = ({ width, 
       .scaleExtent([1, 5])
       .translateExtent([[0, 0], [innerWidth, innerHeight]])
       .extent([[0, 0], [innerWidth, innerHeight]])
-      .on("zoom", (event) => {
+      .on("zoom", (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
         const newXScale = event.transform.rescaleX(xScale);
         const newYScale = event.transform.rescaleY(yScale);
         const newQuestCountScale = event.transform.rescaleY(questCountScale);

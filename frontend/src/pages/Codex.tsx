@@ -14,6 +14,7 @@ const Card: React.FC<{ title: string; children: React.ReactNode; className?: str
 );
 
 const Codex: React.FC = () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { token } = useAuth();
 
   return (

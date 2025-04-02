@@ -1,5 +1,5 @@
+import React, { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { useState, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -7,7 +7,6 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
 
 const containerStyles: React.CSSProperties = {
   width: "443px",
@@ -33,7 +32,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-
   const [username, setUsername] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [termsChecked, setTermsChecked] = useState(false);
@@ -43,7 +41,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const { signIn, signUp, error, clearError } = useAuth();
 
-
   const requirements = useMemo(() => ({
     minLength: password.length >= 8,
     uppercase: /[A-Z]/.test(password),
@@ -51,7 +48,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     digit: /\d/.test(password),
     special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
   }), [password]);
-
 
   const isSignUpValid = useMemo(() => (
     email.trim() !== "" &&
@@ -94,7 +90,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    
     <div className="fixed inset-0 flex items-center justify-center p-8">
       <motion.div
         style={containerStyles}
@@ -102,7 +97,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => e.stopPropagation()}
       >
         {/* Close Button */}
         <button
@@ -134,7 +129,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   type="email"
                   placeholder="Email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                   style={{ height: "calc(50% - 1.5px)" }}
                   className="px-4 bg-transparent focus:outline-none"
                 />
@@ -143,7 +138,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   type="password"
                   placeholder="Password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                   style={{ height: "calc(50% - 1.5px)" }}
                   className="px-4 bg-transparent focus:outline-none"
                 />
@@ -186,7 +181,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   type="text"
                   placeholder="Username"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
                   className="w-full bg-transparent focus:outline-none"
                 />
               </div>
@@ -209,7 +204,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   type="email"
                   placeholder="Email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                   style={{ height: "calc(50% - 1.5px)" }}
                   className="px-4 bg-transparent focus:outline-none"
                 />
@@ -218,7 +213,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   type="password"
                   placeholder="Password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                   onFocus={() => setPasswordFocused(true)}
                   onBlur={() => setPasswordFocused(false)}
                   style={{ height: "calc(50% - 1.5px)" }}
@@ -244,7 +239,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   type="password"
                   placeholder="Confirm Password"
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value)}
                   style={{ height: "100%" }}
                   className="px-4 bg-transparent focus:outline-none"
                 />
@@ -255,7 +250,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               <input
                 type="checkbox"
                 checked={termsChecked}
-                onChange={(e) => setTermsChecked(e.target.checked)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTermsChecked(e.target.checked)}
                 id="terms"
               />
               <label htmlFor="terms" className="ml-2">

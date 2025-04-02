@@ -78,7 +78,12 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
             </Link>
           ))}
         </div>
-        <div className="flex justify-end relative" ref={dropdownRef}>
+        <div className="flex justify-end items-center relative" ref={dropdownRef}>
+          <img
+            src="/icons/icons8-notification-50.svg"
+            alt="Notifications"
+            className="w-8 h-8 cursor-pointer mr-4"
+          />
           {user && user.avatarUrl ? (
             <img
               src={user.avatarUrl}

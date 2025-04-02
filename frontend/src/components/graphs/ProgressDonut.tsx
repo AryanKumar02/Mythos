@@ -1,7 +1,10 @@
-/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 import { useTaskQuest } from '../../context/TaskQuestContext';
+import { useUser } from '../../context/UserContext';
+
 interface ProgressDonutProps {
   width: number;
   height: number;
@@ -10,18 +13,16 @@ interface ProgressDonutProps {
 const ProgressDonut: React.FC<ProgressDonutProps> = ({ width, height }) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const { quests } = useTaskQuest();
+  const { user } = useUser();
+  console.log("User context data:", user);
 
   // Outer ring: XP progress
   const totalXP = quests.reduce((acc, quest) => acc + quest.xpReward, 0);
 
-  let level = 1;
-  let xpRemainder = totalXP;
-  while (xpRemainder >= level * 100) {
-    xpRemainder -= level * 100;
-    level++;
-  }
+  const level = user?.level || 1;
+  const xp = user?.xp || 0;
   const nextLevelXP = level * 100;
-  const xpProgressPercent = Math.min(xpRemainder / nextLevelXP, 1);
+  const xpProgressPercent = Math.min(xp / nextLevelXP, 1);
 
   // Inner ring: Quest progress
   const totalQuests = quests.length;
@@ -116,7 +117,7 @@ const ProgressDonut: React.FC<ProgressDonutProps> = ({ width, height }) => {
               .style('pointer-events', 'none')
               .style('font-size', '14px')
               .style('opacity', 0);
-         tooltip.text(`XP: ${xpRemainder} / ${nextLevelXP}`)
+         tooltip.text(`XP: ${xp} / ${nextLevelXP}`)
               .transition()
               .duration(300)
               .style('opacity', 1);
@@ -217,7 +218,7 @@ const ProgressDonut: React.FC<ProgressDonutProps> = ({ width, height }) => {
       .attr('font-size', '16px')
       .attr('fill', '#fff')
       .text(`Quests ${Math.round(questProgressPercent * 100)}%`);
-  }, [xpProgressPercent, width, height, quests, xpRemainder, nextLevelXP, level, questProgressPercent]);
+  }, [xpProgressPercent, width, height, quests, xp, nextLevelXP, level, questProgressPercent]);
 
   return (
     <div

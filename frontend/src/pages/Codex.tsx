@@ -4,14 +4,12 @@ import { useAuth } from '../context/AuthContext';
 import PlayerProgressionGraph from '../components/graphs/PlayerProgression';
 import PieChart from '../components/graphs/PieChart';
 import ProgressDonut from '../components/graphs/ProgressDonut';
+import QuestStreakBar from '../components/graphs/StreakIndicator';
 
-// Reusable Card component with the specified background colour and stroke
-const Card = ({ title, children, className = '' }) => (
-  <div className={`bg-[#524456] shadow border-2 border-[#756A78] rounded-lg p-4 flex flex-col ${className}`}>
-    {title && <h2 className="text-white font-bold mb-2">{title}</h2>}
-    <div className="flex items-center justify-center">
-      {children}
-    </div>
+const Card: React.FC<{ title: string; children: React.ReactNode; className?: string }> = ({ title, children, className }) => (
+  <div className={`bg-[#524456] border-2 border-[#756A78] rounded-lg p-4 flex flex-col items-center ${className}`}>
+    <h2 className="text-white font-bold mb-4">{title}</h2>
+    {children}
   </div>
 );
 
@@ -19,20 +17,28 @@ const Codex: React.FC = () => {
   const { token } = useAuth();
 
   return (
-    // Container with no scrolling and using the background from index.css
     <div className="min-h-screen px-12 py-6 overflow-hidden">
       <Navbar currentPage="Codex" />
 
-      {/* Flex layout: items arranged according to their content size */}
-      <div className="mt-6 flex flex-wrap gap-6 justify-center items-start">
-        <Card title="Pie Chart">
-          <PieChart width={200} height={200} />
-        </Card>
-        <Card title="Progress Donut">
-          <ProgressDonut width={200} height={200} />
-        </Card>
-        <Card title="Player Progression">
-          <PlayerProgressionGraph width={700} height={500} />
+      <div className="mt-8 space-y-6">
+        {/* Top row: fixed-size cards, left-aligned */}
+        <div className="flex space-x-4">
+          <Card title="Pie Chart" className="max-w-xs">
+            <PieChart width={200} height={200} />
+          </Card>
+
+          <Card title="Progress Donut" className="max-w-xs">
+            <ProgressDonut width={200} height={200} />
+          </Card>
+
+          <Card title="Quest Streak" className="max-w-xs">
+            <QuestStreakBar maxDays={7} />
+          </Card>
+        </div>
+
+        {/* Full-width Player Progression */}
+        <Card title="Player Progression" className="w-full">
+          <PlayerProgressionGraph width={600} height={400} />
         </Card>
       </div>
     </div>

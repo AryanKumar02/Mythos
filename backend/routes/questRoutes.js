@@ -1,4 +1,5 @@
 import express from 'express'
+import { io } from '../index.js'
 import {
   createQuestsFromTasks,
   getQuestsByUser,
@@ -81,7 +82,14 @@ const router = express.Router()
  *       500:
  *         description: Internal server error
  */
-router.post('/create', protect, createQuestsFromTasks)
+router.post('/create', protect, async (req, res, next) => {
+  const originalJson = res.json.bind(res)
+  res.json = (data) => {
+    io.emit('questCreated', data)
+    return originalJson(data)
+  }
+  return createQuestsFromTasks(req, res, next)
+})
 
 /**
  * @swagger
@@ -142,7 +150,14 @@ router.get('/', protect, getQuestsByUser)
  *       500:
  *         description: Internal server error
  */
-router.patch('/:questId/complete', protect, completeQuest)
+router.patch('/:questId/complete', protect, async (req, res, next) => {
+  const originalJson = res.json.bind(res)
+  res.json = (data) => {
+    io.emit('questCompleted', data)
+    return originalJson(data)
+  }
+  return completeQuest(req, res, next)
+})
 
 /**
  * @swagger
@@ -176,6 +191,13 @@ router.patch('/:questId/complete', protect, completeQuest)
  *       500:
  *         description: Internal server error
  */
-router.delete('/:questId', protect, deleteQuest)
+router.delete('/:questId', protect, async (req, res, next) => {
+  const originalJson = res.json.bind(res)
+  res.json = (data) => {
+    io.emit('questDeleted', data)
+    return originalJson(data)
+  }
+  return deleteQuest(req, res, next)
+})
 
 export default router

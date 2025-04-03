@@ -81,12 +81,14 @@ export const loginUser = async (req, res) => {
   }
 }
 
+// Removed duplicate incomplete getUserProfile implementation.
+
 // Fetch user profile (protected)
 export const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select(
       'username email xp level',
-    )
+    ) // Exclude password
     if (!user) {
       return res.status(404).json({ error: 'User not found' })
     }

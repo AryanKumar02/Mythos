@@ -54,12 +54,7 @@ const io = new Server(server, {
 })
 
 io.on('connection', (socket) => {
-  console.log(`User connected: ${socket.id}`) // ✅ Logs when a user connects
-
-  socket.on('customEvent', (data) => {
-    console.log('Custom event received:', data) // ✅ Ensure you handle event data
-  })
-
+  socket.on('customEvent', () => {})
   socket.on('disconnect', () => {
     console.log(`User disconnected: ${socket.id}`)
   })

@@ -260,7 +260,7 @@ const PlayerProgressionGraph: React.FC<PlayerProgressionGraphProps> = ({ width, 
       .datum(questCountData)
       .attr('class', 'quest-count-line')
       .attr('fill', 'none')
-      .attr('stroke', '#ccc')
+      .attr('stroke', 'white')
       .attr('stroke-dasharray', '5,5')
       .attr('stroke-width', 2)
       .attr('d', lineQuestCount);

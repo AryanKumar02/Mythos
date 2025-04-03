@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "jest",
-    "start": "node ./backend/index.js",
+    "start": "nodemon ./backend/index.js",
     "dev": "nodemon /backend/index.js",
     "lint": "eslint backend",
     "lint:fix": "eslint backend --fix"

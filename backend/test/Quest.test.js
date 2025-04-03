@@ -1,27 +1,17 @@
-// backend/test/Quest.test.js
 import mongoose from 'mongoose'
 import { MongoMemoryServer } from 'mongodb-memory-server'
-import Quest from '../models/Quest.js' // Adjust the path if necessary
+import Quest from '../models/Quest.js'
 
 let mongoServer
 
 describe('Quest Schema', () => {
-  // Hook to run before all tests in this describe block
   beforeAll(async () => {
-    // Initialize the in-memory MongoDB server
     mongoServer = await MongoMemoryServer.create()
     const uri = mongoServer.getUri()
-
-    // Connect mongoose to the in-memory server
-    await mongoose.connect(uri, {
-      // No need for useNewUrlParser or useUnifiedTopology in Mongoose 6+
-      // You can add other options here if necessary
-    })
+    await mongoose.connect(uri)
   })
 
-  // Hook to run after all tests in this describe block
   afterAll(async () => {
-    // Check if mongoose is connected before attempting to drop the database
     if (mongoose.connection.db) {
       await mongoose.connection.db.dropDatabase()
     }
@@ -29,7 +19,6 @@ describe('Quest Schema', () => {
     await mongoServer.stop()
   })
 
-  // Hook to run after each test to ensure test isolation
   afterEach(async () => {
     const collections = mongoose.connection.collections
     for (const key in collections) {
@@ -54,13 +43,11 @@ describe('Quest Schema', () => {
     expect(savedQuest.questDescription).toBe(
       'A fearsome dragon guards the pile of laundry. Defeat it by sorting, washing, and folding!',
     )
-    expect(savedQuest.isComplete).toBe(false) // Default value
+    expect(savedQuest.isComplete).toBe(false)
   })
 
   it('should throw validation errors if required fields are missing', async () => {
-    const invalidQuest = new Quest({
-      // Missing required fields: user, originalTask, questTitle, questDescription
-    })
+    const invalidQuest = new Quest({})
 
     let error
     try {
@@ -86,6 +73,6 @@ describe('Quest Schema', () => {
     })
 
     const savedQuest = await defaultQuest.save()
-    expect(savedQuest.isComplete).toBe(false) // Default isComplete should be false
+    expect(savedQuest.isComplete).toBe(false)
   })
 })

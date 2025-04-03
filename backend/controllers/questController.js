@@ -9,11 +9,10 @@ import {
   formatPaginationResult,
 } from '../utills/paginationControl.js'
 
-// GPT-4 Turbo context window is 128k, keep system message concise
 const SYSTEM_MESSAGE = {
   role: 'system',
   content:
-    'Generate fantasy RPG quests from real-life tasks. Respond with valid JSON: {questTitle: string, questDescription: string, xp: number}',
+    'Generate fantasy RPG quests from real-life tasks. Give me a random xp number between 0 - 150. Respond with valid JSON: {questTitle: string, questDescription: string, xp: number}',
 }
 
 export const createQuestsFromTasks = async (req, res) => {
@@ -68,7 +67,7 @@ export const createQuestsFromTasks = async (req, res) => {
                 originalTask: task._id,
                 ...questData,
                 isComplete: false,
-                xpReward: Math.min(Math.max(questData.xp, 10), 50), // Clamp XP between 10-50
+                xpReward: Math.min(Math.max(questData.xp, 10), 150),
               },
             }
           } catch (error) {
@@ -111,7 +110,6 @@ export const createQuestsFromTasks = async (req, res) => {
 
 export const getQuestsByUser = async (req, res) => {
   try {
-    // Extract pagination parameters from the request query
     const { page, limit, skip } = getPaginationParams(req.query)
 
     // Retrieve quests for the user with pagination
@@ -222,4 +220,26 @@ function parseAndValidateQuestJSON(rawJSON) {
   }
 
   return data
+}
+
+export const deleteQuest = async (req, res) => {
+  try {
+    // Find and delete the quest for the authenticated user
+    const quest = await Quest.findOneAndDelete({
+      _id: req.params.questId,
+      user: req.user.id,
+    })
+
+    if (!quest) {
+      return res.status(404).json({ error: 'Quest not found' })
+    }
+
+    // Optionally, emit an event for real-time updates
+    io.to(req.user.id).emit('questDeleted', { questId: req.params.questId })
+
+    res.json({ message: 'Quest deleted successfully', quest })
+  } catch (error) {
+    console.error('Quest deletion error:', error)
+    res.status(500).json({ error: 'Failed to delete quest' })
+  }
 }

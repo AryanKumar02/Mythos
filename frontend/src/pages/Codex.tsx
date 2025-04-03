@@ -1,0 +1,43 @@
+import React from 'react';
+import Navbar from '../components/ui/Navbar';
+import { useAuth } from '../context/AuthContext';
+import PlayerProgressionGraph from '../components/graphs/PlayerProgression';
+import PieChart from '../components/graphs/PieChart';
+import ProgressDonut from '../components/graphs/ProgressDonut';
+
+// Reusable Card component with the specified background colour and stroke
+const Card = ({ title, children, className = '' }) => (
+  <div className={`bg-[#524456] shadow border-2 border-[#756A78] rounded-lg p-4 flex flex-col ${className}`}>
+    {title && <h2 className="text-white font-bold mb-2">{title}</h2>}
+    <div className="flex items-center justify-center">
+      {children}
+    </div>
+  </div>
+);
+
+const Codex: React.FC = () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { token } = useAuth();
+
+  return (
+    // Container with no scrolling and using the background from index.css
+    <div className="min-h-screen px-12 py-6 overflow-hidden">
+      <Navbar currentPage="Codex" />
+
+      {/* Flex layout: items arranged according to their content size */}
+      <div className="mt-6 flex flex-wrap gap-6 justify-center items-start">
+        <Card title="Pie Chart">
+          <PieChart width={200} height={200} />
+        </Card>
+        <Card title="Progress Donut">
+          <ProgressDonut width={200} height={200} />
+        </Card>
+        <Card title="Player Progression">
+          <PlayerProgressionGraph width={700} height={500} />
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default Codex;

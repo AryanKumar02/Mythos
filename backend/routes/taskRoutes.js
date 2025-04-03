@@ -5,8 +5,9 @@ import {
   getTaskById,
   updateTask,
   deleteTask,
+  createTaskAndQuest,
 } from '../controllers/taskController.js'
-import protect from '../middlewares/authMiddleware.js' // Ensure users are authenticated
+import protect from '../middlewares/authMiddleware.js'
 
 const router = express.Router()
 
@@ -44,6 +45,8 @@ const router = express.Router()
  *           format: date-time
  *           description: The date the task was last updated
  */
+
+router.post('/create-task-quest', protect, createTaskAndQuest)
 
 /**
  * @swagger

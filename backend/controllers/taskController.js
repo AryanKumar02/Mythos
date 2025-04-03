@@ -66,7 +66,7 @@ export const createTaskAndQuest = async (req, res) => {
       originalTask: savedTask._id,
       ...questData,
       isComplete: false,
-      xpReward: Math.min(Math.max(questData.xp, 10), 50),
+      xpReward: Math.min(Math.max(questData.xp, 10), 150),
     })
     const savedQuest = await quest.save()
 

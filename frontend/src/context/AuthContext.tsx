@@ -1,4 +1,7 @@
+// src/context/AuthContext.tsx
+
 import React, { createContext, useState, useContext, ReactNode, useEffect } from "react";
+import { signInApi, signUpApi, updateAvatarApi } from '../api/authAPI' // Adjust the path if needed
 
 export interface User {
   id: string;
@@ -57,22 +60,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const signIn = async (email: string, password: string) => {
     try {
       clearError();
-      const response = await fetch("http://localhost:3001/api/users/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await response.json();
+      const data = await signInApi(email, password);
       console.log("Sign in response data:", data);
-      if (!response.ok) {
-        console.error("Sign in error response:", data);
-        setError(data.error || "Login failed");
-        throw new Error(data.error || "Login failed");
-      }
-      const userToStore: User = data.user ? data.user : data;
+      const userToStore: User = 'user' in data ? data.user : data as User;
       if (data.token) {
         localStorage.setItem("authToken", data.token);
         setToken(data.token);
@@ -92,22 +82,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const signUp = async (username: string, email: string, password: string) => {
     try {
       clearError();
-      const response = await fetch("http://localhost:3001/api/users/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({ username, email, password }),
-      });
-      const data = await response.json();
+      const data = await signUpApi(username, email, password);
       console.log("Sign up response data:", data);
-      if (!response.ok) {
-        console.error("Sign up error response:", data);
-        setError(data.error || "Failed to register user");
-        throw new Error(data.error || "Failed to register user");
-      }
-      const userToStore: User = data.user ? data.user : data;
+      const userToStore: User = 'user' in data ? data.user : data as User;
       if (data.token) {
         localStorage.setItem("authToken", data.token);
         setToken(data.token);
@@ -141,20 +118,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const updateAvatar = async (avatarSeed: string): Promise<User> => {
     try {
       const authToken = localStorage.getItem("authToken");
-      const response = await fetch("http://localhost:3001/api/users/update-avatar", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify({ avatarSeed }),
-      });
-      const data = await response.json();
+      const data = await updateAvatarApi(avatarSeed, authToken!);
       console.log("PUT update-avatar response:", data);
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to update avatar");
-      }
       const updatedUser: User = { ...user!, avatarUrl: data.avatarUrl };
       updateUserProfile(updatedUser);
       return updatedUser;

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { fetchUserApi } from '../api/userAPI';
 
 export interface User {
   id: string;
@@ -32,18 +33,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem('authToken');
-      const response = await fetch('http://localhost:3001/api/users/profile', {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': token ? `Bearer ${token}` : '',
-        },
-        credentials: 'include',
-      });
-      if (!response.ok) {
-        throw new Error(`Network response was not ok, status ${response.status}`);
-      }
-      const data: User = await response.json();
+      const data = await fetchUserApi();
       setUser(data);
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -71,7 +61,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useUser = (): UserContextType => {
   const context = useContext(UserContext);
   if (!context) {

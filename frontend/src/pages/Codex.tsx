@@ -5,8 +5,14 @@ import PlayerProgressionGraph from '../components/graphs/PlayerProgression';
 import PieChart from '../components/graphs/PieChart';
 import ProgressDonut from '../components/graphs/ProgressDonut';
 
+interface CardProps {
+  title?: string;
+  children: React.ReactNode;
+  className?: string;
+}
+
 // Reusable Card component with the specified background colour and stroke
-const Card = ({ title, children, className = '' }) => (
+const Card: React.FC<CardProps> = ({ title, children, className = '' }) => (
   <div className={`bg-[#524456] shadow border-2 border-[#756A78] rounded-lg p-4 flex flex-col ${className}`}>
     {title && <h2 className="text-white font-bold mb-2">{title}</h2>}
     <div className="flex items-center justify-center">

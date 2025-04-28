@@ -30,18 +30,24 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [error, setError] = useState<string | null>(null);
 
   const fetchUser = async () => {
+    console.log('DEBUG: Starting fetchUser');
     setLoading(true);
     setError(null);
     try {
       const data = await fetchUserApi();
+      console.log('DEBUG: Received user data:', data);
+      console.log('DEBUG: User streak is:', data.streak);
       setUser(data);
     } catch (err: unknown) {
       if (err instanceof Error) {
+        console.error('DEBUG: fetchUser error:', err.message);
         setError(err.message);
       } else {
+        console.error('DEBUG: fetchUser error: Unknown error');
         setError('Failed to load user');
       }
     } finally {
+      console.log('DEBUG: Finished fetchUser');
       setLoading(false);
     }
   };

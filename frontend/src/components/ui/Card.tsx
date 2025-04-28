@@ -8,7 +8,7 @@ interface CardProps {
   xp?: number;
   faded?: boolean;
   isCTA?: boolean;
-  onDetailsClick?: () => void; 
+  onDetailsClick?: () => void;
 }
 
 const Card: React.FC<CardProps> = ({
@@ -39,18 +39,20 @@ const Card: React.FC<CardProps> = ({
         <p className="text-white text-sm mt-2 text-center">XP: {xp}</p>
       )}
       {/* Details Button */}
-      <div className="mt-4">
-        <button
-          onClick={onDetailsClick}
-          className="w-full bg-white text-[#453245] py-1 px-3 font-semibold rounded-full hover:bg-gray-200 transition duration-200"
-        >
-          Details
-        </button>
-      </div>
+      {!isCTA && (
+        <div className="mt-4">
+          <button
+            onClick={onDetailsClick}
+            className="w-full bg-white text-[#453245] py-1 px-3 font-semibold rounded-full hover:bg-gray-200 transition duration-200"
+          >
+            Details
+          </button>
+        </div>
+      )}
       {/* Optional CTA button */}
       {isCTA && (
         <div className="mt-4 flex justify-center">
-          <Link to="/create-quest">
+          <Link to="/adventure">
             <button className="bg-white text-[#453245] py-1 px-3 font-semibold rounded-full hover:bg-gray-200 transition duration-200">
               Create
             </button>

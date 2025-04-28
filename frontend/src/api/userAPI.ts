@@ -14,5 +14,6 @@ export async function fetchUserApi(): Promise<User> {
     throw new Error(`Network response was not ok, status ${response.status}`);
   }
   const data: User = await response.json();
+  console.log("User data fetched:", data.streak);
   return data;
 }

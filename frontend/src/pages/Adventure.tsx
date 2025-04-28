@@ -35,10 +35,6 @@ const Adventure: React.FC = () => {
     createdAt: quest.createdAt,
   }));
 
-  console.log("Quests from context:", quests);
-  console.log("Active Carousel Items:", activeCarouselItems);
-  console.log("Completed Carousel Items:", completedCarouselItems);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedQuest, setSelectedQuest] = useState<CarouselItem | null>(null);
 
@@ -191,9 +187,11 @@ const Adventure: React.FC = () => {
               <p>{selectedQuest.description}</p>
               <p className="mt-2">XP: {selectedQuest.xp}</p>
               <div className="flex justify-center mt-4 space-x-4">
-                {!isSelectedQuestCompleted && (
-                  <Button className="text-[#453245]" onClick={handleCompleteQuest}>Complete</Button>
-                )}
+              {!isSelectedQuestCompleted && (
+                <Button className="text-[#453245]" onClick={handleCompleteQuest}>
+                  Complete
+                </Button>
+              )}
                 {isSelectedQuestCompleted && (
                   <Button className="text-[#453245]" onClick={handleRemoveQuest}>Remove Quest</Button>
                 )}

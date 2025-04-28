@@ -8,6 +8,7 @@ export interface CarouselItem {
   description: string;
   xp?: number;
   createdAt?: string | Date;
+  completed?: boolean;
 }
 
 interface CarouselProps {
@@ -22,20 +23,23 @@ const Carousel: React.FC<CarouselProps> = ({ items, autoSlideInterval = 3000 }) 
     description: 'Complete tasks to unlock new quests or click here to create one!',
   };
 
+  // Filter out completed quests
+  const activeItems = items.filter(item => !item.completed);
+
   const renderMode =
-    items.length === 0 ? 'staticCTA' : items.length === 1 ? 'staticTwo' : 'carousel';
+    activeItems.length === 0 ? 'staticCTA' : activeItems.length === 1 ? 'staticTwo' : 'carousel';
   console.log("Carousel renderMode:", renderMode);
 
   let displayedItems: CarouselItem[] = [];
   if (renderMode === 'staticCTA') {
     displayedItems = [ctaCard];
   } else if (renderMode === 'staticTwo') {
-    displayedItems = [...items, ctaCard];
+    displayedItems = [...activeItems, ctaCard];
   } else {
-    if (items.length < 3) {
-      displayedItems = [...items, ctaCard];
+    if (activeItems.length < 3) {
+      displayedItems = [...activeItems, ctaCard];
     } else {
-      const sortedItems = [...items].sort(
+      const sortedItems = [...activeItems].sort(
         (a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
       );
       displayedItems = sortedItems.slice(0, 3);
@@ -106,9 +110,9 @@ const Carousel: React.FC<CarouselProps> = ({ items, autoSlideInterval = 3000 }) 
       >
         <div style={{ width: cardWidth, height: cardHeight }}>
           <Card
-            title={items[0].title}
-            description={items[0].description}
-            xp={items[0].xp}
+            title={activeItems[0].title}
+            description={activeItems[0].description}
+            xp={activeItems[0].xp}
             faded={false}
           />
         </div>

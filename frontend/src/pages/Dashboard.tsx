@@ -23,18 +23,18 @@ const Dashboard: React.FC = () => {
     console.log("Quests from TaskQuestContext:", quests);
   }, [quests]);
 
-  const carouselItems: CarouselItem[] = useMemo(
-    () =>
-      Array.isArray(quests)
-        ? quests.map((quest) => ({
-            id: quest._id,
-            title: quest.questTitle || "No Title",
-            description: quest.questDescription || "",
-            xp: quest.xpReward,
-          }))
-        : [],
-    [quests]
-  );
+  const carouselItems: CarouselItem[] = useMemo(() => {
+    if (!Array.isArray(quests)) return [];
+    return quests
+      .filter((quest) => !quest.isComplete)
+      .map((quest) => ({
+        id: quest._id,
+        title: quest.questTitle || "No Title",
+        description: quest.questDescription || "",
+        xp: quest.xpReward,
+        completed: quest.isComplete,
+      }));
+  }, [quests]);
 
   const handleAvatarSelect = useCallback(
     async (selectedSeed: string) => {

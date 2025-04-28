@@ -20,8 +20,8 @@ function App() {
             <Route path="/" element={<Splash />} />
             <Route path="/terms" element={<TermsPage />} />
 
-          {/* Protected Routes */}
-          <Route element={<ProtectedRoute />}>
+            {/* Protected Routes */}
+            <Route element={<ProtectedRoute />}>
               {/* Wrap your protected pages with TaskQuestProvider */}
               <Route
                 path="/dashboard"
@@ -54,4 +54,5 @@ function App() {
     </AuthProvider>
   );
 }
+
 export default App;

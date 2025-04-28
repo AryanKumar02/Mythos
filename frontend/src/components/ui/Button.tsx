@@ -2,7 +2,7 @@
 import React from "react";
 
 interface ButtonProps {
-  text?: string; 
+  text?: string;
   onClick?: () => void;
   className?: string;
   textColor?: string;
@@ -14,7 +14,7 @@ const Button: React.FC<ButtonProps> = ({
   children,
   onClick,
   className = "",
-  textColor = "text-white",
+  textColor = "text-[#453245]",
 }) => {
   return (
     <button

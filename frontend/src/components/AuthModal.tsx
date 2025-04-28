@@ -26,16 +26,12 @@ const containerStyles: React.CSSProperties = {
 };
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
-
   const [mode, setMode] = useState<"signIn" | "signUp">("signIn");
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [username, setUsername] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [termsChecked, setTermsChecked] = useState(false);
-
   const [passwordFocused, setPasswordFocused] = useState(false);
 
   const navigate = useNavigate();

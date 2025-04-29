@@ -20,14 +20,14 @@ const userSchema = new mongoose.Schema(
       unique: true,
       trim: true,
       validate: {
-        validator: validator.isEmail, // Validate email format
+        validator: validator.isEmail,
         message: 'Please provide a valid email address',
       },
     },
     password: {
       type: String,
       required: true,
-      minlength: 8, // Ensure password is at least 8 characters long
+      minlength: 8,
       validate: {
         validator: function (v) {
           if (!/(?=.*[A-Z])/.test(v)) {
@@ -81,7 +81,6 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    // Stores XP points
     level: {
       type: Number,
       default: 1,
@@ -90,20 +89,16 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
-    avatarStyle: {
-      type: String,
-      default: 'initials',
-    },
   },
   { timestamps: true }, // Automatically add createdAt and updatedAt fields
 )
 
 // Pre-save hook to hash the password before saving
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next() // Skip hashing if password is unchanged
+  if (!this.isModified('password')) return next()
   try {
-    const salt = await bcrypt.genSalt(10) // Generate a salt
-    this.password = await bcrypt.hash(this.password, salt) // Hash the password
+    const salt = await bcrypt.genSalt(10)
+    this.password = await bcrypt.hash(this.password, salt)
     next()
   } catch (error) {
     next(error)
@@ -130,13 +125,20 @@ userSchema.methods.generatePasswordResetToken = function () {
   return resetToken
 }
 
-// Virtual property to generate the avatar URL using DiceBear API v9.x
+// Virtual property to generate the avatar URL from the public assets folder
 userSchema.virtual('avatarUrl').get(function () {
-  // Use avatarSeed if set; otherwise, fall back to username
-  const seed = this.avatarSeed || this.username
-  // Use the chosen style (or default) to build the URL
-  const style = this.avatarStyle || 'initials'
-  return `https://api.dicebear.com/9.x/${style}/svg?seed=${encodeURIComponent(seed)}`
+  // Check if avatarSeed is provided and not just empty whitespace
+  if (this.avatarSeed && this.avatarSeed.trim() !== '') {
+    let seed = this.avatarSeed
+    // If the seed already contains a full path, return it as-is.
+    if (seed.startsWith('/assets/avatars/')) {
+      return seed
+    }
+    // Otherwise, construct the URL using the base path and append .svg
+    return `/assets/avatars/${encodeURIComponent(seed)}.svg`
+  }
+  // If no avatarSeed is set, return a specific default avatar.
+  return `/assets/avatars/default.svg`
 })
 
 // Ensure that virtual properties are included when converting to JSON/objects

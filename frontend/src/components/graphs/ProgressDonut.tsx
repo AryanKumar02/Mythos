@@ -1,4 +1,3 @@
-
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import React, { useRef, useEffect } from 'react';
@@ -95,7 +94,7 @@ const ProgressDonut: React.FC<ProgressDonutProps> = ({ width, height }) => {
     outerArcs.append('path')
       .attr('fill', d => d.data.label === 'xpProgress' ? 'url(#xpGradient)' : '#333')
       .attr('stroke-width', '2px')
-      .on('mouseover', function (event, d) {
+      .on('mouseover', function () {
         d3.select(this)
           .transition()
           .duration(200)
@@ -151,7 +150,7 @@ const ProgressDonut: React.FC<ProgressDonutProps> = ({ width, height }) => {
         index: 0,
       }))
       .attr('stroke-width', '2px')
-      .on('mouseover', function (event, d) {
+      .on('mouseover', function () {
         d3.select(this)
           .transition()
           .duration(200)
@@ -220,21 +219,24 @@ const ProgressDonut: React.FC<ProgressDonutProps> = ({ width, height }) => {
 
   return (
     <div
-      style={{
-        width: '100%',
-        maxWidth: '600px',
-        margin: '0 auto',
-        padding: '1rem',
-        borderRadius: '0.5rem',
-      }}
+      role="img"
+      aria-label={`Progress chart showing ${Math.round(xpProgressPercent * 100)}% XP progress and ${Math.round(questProgressPercent * 100)}% quest completion`}
     >
       <svg
         ref={svgRef}
-        style={{
-          display: 'block',
-          margin: '0 auto',
-        }}
-      ></svg>
+        width={width}
+        height={height}
+        role="img"
+        aria-hidden="true"
+      >
+        {/* ... existing SVG content ... */}
+      </svg>
+      <div
+        className="sr-only"
+        aria-live="polite"
+      >
+        {`Level ${level}, ${xp} XP out of ${nextLevelXP} needed for next level. ${completedQuests} out of ${totalQuests} quests completed.`}
+      </div>
     </div>
   );
 }

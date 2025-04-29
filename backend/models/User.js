@@ -20,14 +20,14 @@ const userSchema = new mongoose.Schema(
       unique: true,
       trim: true,
       validate: {
-        validator: validator.isEmail, // Validate email format
+        validator: validator.isEmail,
         message: 'Please provide a valid email address',
       },
     },
     password: {
       type: String,
       required: true,
-      minlength: 8, // Ensure password is at least 8 characters long
+      minlength: 8,
       validate: {
         validator: function (v) {
           if (!/(?=.*[A-Z])/.test(v)) {
@@ -95,10 +95,10 @@ const userSchema = new mongoose.Schema(
 
 // Pre-save hook to hash the password before saving
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next() // Skip hashing if password is unchanged
+  if (!this.isModified('password')) return next()
   try {
-    const salt = await bcrypt.genSalt(10) // Generate a salt
-    this.password = await bcrypt.hash(this.password, salt) // Hash the password
+    const salt = await bcrypt.genSalt(10)
+    this.password = await bcrypt.hash(this.password, salt)
     next()
   } catch (error) {
     next(error)

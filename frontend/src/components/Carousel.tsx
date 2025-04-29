@@ -93,7 +93,12 @@ const Carousel: React.FC<CarouselProps> = ({ items, autoSlideInterval = 3000 }) 
 
   if (renderMode === 'staticCTA') {
     return (
-      <div className="flex justify-center items-center mt-8 mx-auto" style={{ width: cardWidth }}>
+      <div
+        role="region"
+        aria-label="Quest carousel"
+        className="flex justify-center items-center mt-8 mx-auto"
+        style={{ width: cardWidth }}
+      >
         <Card
           title={ctaCard.title}
           description={ctaCard.description}
@@ -105,6 +110,8 @@ const Carousel: React.FC<CarouselProps> = ({ items, autoSlideInterval = 3000 }) 
   } else if (renderMode === 'staticTwo') {
     return (
       <div
+        role="region"
+        aria-label="Quest carousel"
         className="flex justify-center items-center mt-8 mx-auto"
         style={{ width: cardWidth * 2 + gap, gap: `${gap}px` }}
       >
@@ -128,16 +135,30 @@ const Carousel: React.FC<CarouselProps> = ({ items, autoSlideInterval = 3000 }) 
     );
   } else {
     return (
-      <div className="mt-8 mx-auto" style={{ width: visibleWidth }}>
-        <div className="overflow-hidden">
+      <div
+        role="region"
+        aria-label="Quest carousel"
+        className="mt-8 mx-auto"
+        style={{ width: visibleWidth }}
+      >
+        <div
+          role="list"
+          className="overflow-hidden"
+        >
           <motion.div
+            role="listitem"
             className="flex items-start"
             style={{ gap: `${gap}px` }}
             animate={controls}
             transition={{ type: 'tween', duration: 0.5 }}
           >
             {displayedItems.map((item, index) => (
-              <div key={`${item.id}-${index}`} style={{ minWidth: `${cardWidth}px`, height: `${cardHeight}px` }}>
+              <div
+                key={`${item.id}-${index}`}
+                style={{ minWidth: `${cardWidth}px`, height: `${cardHeight}px` }}
+                role="listitem"
+                aria-label={`Quest: ${item.title}`}
+              >
                 <Card
                   title={item.title}
                   description={item.description}
@@ -149,10 +170,17 @@ const Carousel: React.FC<CarouselProps> = ({ items, autoSlideInterval = 3000 }) 
             ))}
           </motion.div>
         </div>
-        <div className="flex justify-center mt-4">
+        <div
+          role="tablist"
+          aria-label="Carousel navigation"
+          className="flex justify-center mt-4"
+        >
           {displayedItems.map((_, index) => (
             <button
               key={`dot-${index}`}
+              role="tab"
+              aria-selected={index === activeIndex}
+              aria-controls={`slide-${index}`}
               onClick={() => goToSlide(index)}
               style={{
                 width: 8,

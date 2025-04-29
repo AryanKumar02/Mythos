@@ -132,7 +132,15 @@ const StreakMeter: React.FC<StreakMeterProps> = ({ width = 350, height = 350 }) 
       .text(`${streak} / ${maxStreak}`);
   }, [width, height, streak, maxStreak]);
 
-  return <svg ref={svgRef} width={width} height={height}></svg>;
+  return (
+    <div className="streak-meter">
+      <svg
+        ref={svgRef}
+        width={width}
+        height={height}
+      />
+    </div>
+  );
 };
 
 export default StreakMeter;

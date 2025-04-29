@@ -6,7 +6,6 @@ const generateToken = (id) => {
     expiresIn: '24h',
   })
 }
-
 export const registerUser = async (req, res) => {
   const { username, email, password } = req.body
   console.log('Register endpoint hit')

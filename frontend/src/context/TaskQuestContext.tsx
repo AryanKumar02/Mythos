@@ -7,7 +7,9 @@ import React, {
   ReactNode,
 } from 'react';
 import { useAuth } from './AuthContext';
+import { useSocket } from './SocketContext';
 import { Task, Quest } from '../types/taskQuestTypes';
+import { toast } from 'react-toastify';
 import {
   fetchTasksAPI,
   fetchQuestsAPI,
@@ -46,6 +48,7 @@ export const TaskQuestProvider: React.FC<TaskQuestProviderProps> = ({ children }
   const [tasks, setTasks] = useState<Task[]>([]);
   const [quests, setQuests] = useState<Quest[]>([]);
   const { token } = useAuth();
+  const { socket } = useSocket();
 
   const fetchTasks = useCallback(async () => {
     if (!token) return;
@@ -196,6 +199,107 @@ export const TaskQuestProvider: React.FC<TaskQuestProviderProps> = ({ children }
       fetchQuests();
     }
   }, [fetchTasks, fetchQuests, token]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    // Task events
+    socket.on('taskCreated', (data) => {
+      console.log('[Socket] New task created:', data);
+      setTasks(prev => [...prev, data.task]);
+      toast.success('Task created successfully!', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    });
+
+    // Quest events
+    socket.on('questCreated', (data) => {
+      console.log('[Socket] New quest created:', data);
+      setQuests(prev => [...prev, data.quest]);
+      toast.success('New quest generated!', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    });
+
+    socket.on('questCompleted', (data) => {
+      console.log('[Socket] Quest completed:', data);
+      setQuests(prev =>
+        prev.map(quest =>
+          quest._id === data.quest._id ? { ...quest, isComplete: true } : quest
+        )
+      );
+      toast.success('Quest completed!', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    });
+
+    socket.on('levelUp', (data) => {
+      console.log('[Socket] Level up:', data);
+      toast.success(`Level Up! You are now level ${data.level}`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    });
+
+    socket.on('streakUpdated', (data) => {
+      console.log('[Socket] Streak updated:', data);
+      toast.info(`Current streak: ${data.streak} days!`, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    });
+
+    socket.on('questDeleted', (data) => {
+      console.log('[Socket] Quest deleted:', data);
+      setQuests(prev => prev.filter(quest => quest._id !== data.questId));
+      toast.info('Quest removed', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    });
+
+    return () => {
+      socket.off('taskCreated');
+      socket.off('questCreated');
+      socket.off('questCompleted');
+      socket.off('levelUp');
+      socket.off('streakUpdated');
+      socket.off('questDeleted');
+    };
+  }, [socket]);
 
   return (
     <TaskQuestContext.Provider

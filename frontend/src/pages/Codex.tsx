@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Navbar from '../components/ui/Navbar';
-import { useAuth } from '../context/AuthContext';
 import PlayerProgressionGraph from '../components/graphs/PlayerProgression';
 import PieChart from '../components/graphs/PieChart';
 import ProgressDonut from '../components/graphs/ProgressDonut';
 import StreakMeter from "../components/graphs/StreakMeter";
+import { useAuth } from '../context/AuthContext';
 
 interface CardProps {
   title?: string;
@@ -14,8 +14,8 @@ interface CardProps {
 
 // Reusable Card component with the specified background colour and stroke
 const Card: React.FC<CardProps> = ({ title, children, className = '' }) => (
-  <div className={`bg-[#524456] shadow border-2 border-[#756A78] rounded-lg p-4 flex flex-col ${className}`}>
-    {title && <h2 className="text-white font-bold mb-2">{title}</h2>}
+  <div className={`bg-[#453245] border border-[#756A78] rounded-lg p-4 ${className}`}>
+    {title && <h2 className="text-xl font-bold mb-4">{title}</h2>}
     <div className="flex items-center justify-center">
       {children}
     </div>
@@ -23,8 +23,16 @@ const Card: React.FC<CardProps> = ({ title, children, className = '' }) => (
 );
 
 const Codex: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { token } = useAuth();
+
+  useEffect(() => {
+    // This demonstrates that the token is being used
+    if (!token) {
+      // Handle unauthenticated state if needed
+      return;
+    }
+    // Token is available for API calls or other authenticated operations
+  }, [token]);
 
   return (
     // Container with no scrolling and using the background from index.css

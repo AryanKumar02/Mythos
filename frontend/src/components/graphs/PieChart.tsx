@@ -94,7 +94,7 @@ const PieChart: React.FC<PieChartProps> = ({
       .enter()
       .append('g')
       .attr('class', 'legend')
-      .attr('transform', (d, i) => `translate(0, ${i * 30})`);
+      .attr('transform', (_, i) => `translate(0, ${i * 30})`);
 
     legend.append('rect')
       .attr('x', -40)

@@ -41,10 +41,12 @@ const io = new Server(server, {
 })
 
 // Middleware
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true,
-}))
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  }),
+)
 app.use(express.json())
 app.use(express.urlencoded({ limit: '30mb', extended: true }))
 app.use(cookieParser())

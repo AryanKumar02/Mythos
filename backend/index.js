@@ -23,6 +23,7 @@ const PORT = process.env.PORT || 5000
 
 // Configure CORS
 const allowedOrigins = [
+  'http://localhost:5173',
   'http://localhost:5174',
   'http://localhost:3001',
   'http://localhost:80',
@@ -82,6 +83,7 @@ io.use((socket, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
     socket.data.user = decoded
     next()
+    // eslint-disable-next-line no-unused-vars
   } catch (error) {
     return next(new Error('Authentication error: Invalid token'))
   }

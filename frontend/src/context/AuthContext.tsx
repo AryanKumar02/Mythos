@@ -10,11 +10,12 @@ export interface User {
   avatarUrl?: string;
 }
 
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
   error: string | null;
+  isLoading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (username: string, email: string, password: string) => Promise<void>;
   logout: () => void;
@@ -30,27 +31,34 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [token, setToken] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("authToken");
-    const storedUser = localStorage.getItem("user");
-    if (storedUser && storedUser !== "undefined") {
-      try {
-        const parsedUser: User = JSON.parse(storedUser);
-        setUser(parsedUser);
-        if (storedToken && storedToken !== "undefined") {
+    const initializeAuth = () => {
+      const storedToken = localStorage.getItem("authToken");
+      const storedUser = localStorage.getItem("user");
+
+      if (storedUser && storedUser !== "undefined" && storedToken && storedToken !== "undefined") {
+        try {
+          const parsedUser: User = JSON.parse(storedUser);
+          setUser(parsedUser);
           setToken(storedToken);
+          setIsAuthenticated(true);
+          console.log("AuthProvider: Loaded user and token from localStorage");
+        } catch (err) {
+          console.error("AuthProvider: Failed to parse stored user", err);
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("user");
         }
-        setIsAuthenticated(true);
-        console.log("AuthProvider: Loaded user and token from localStorage");
-      } catch (err) {
-        console.error("AuthProvider: Failed to parse stored user", err);
+      } else {
+        console.log("AuthProvider: No valid auth data found in localStorage");
         localStorage.removeItem("authToken");
         localStorage.removeItem("user");
       }
-    } else {
-      console.log("AuthProvider: No user found in localStorage.");
-    }
+      setIsLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
   const clearError = () => {
@@ -136,6 +144,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         token,
         isAuthenticated,
         error,
+        isLoading,
         signIn,
         signUp,
         logout,

@@ -14,8 +14,8 @@ interface CardProps {
 
 // Reusable Card component with the specified background colour and stroke
 const Card: React.FC<CardProps> = ({ title, children, className = '' }) => (
-  <div className={`bg-[#453245] border border-[#756A78] rounded-lg p-4 ${className}`}>
-    {title && <h2 className="text-xl font-bold mb-4">{title}</h2>}
+  <div className={`bg-[#524456] border border-[#756A78] rounded-lg p-4 ${className}`}>
+    {title && <h2 className="text-xl font-bold mb-4 text-white">{title}</h2>}
     <div className="flex items-center justify-center">
       {children}
     </div>
